@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "lib": ["es2024", "ESNext.Array", "ESNext.Collection", "ESNext.Promise"],
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "ESNext",
+        "rootDir": ".",
+        "outDir": "build",
+
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+
+        "baseUrl": "src",
+        "paths": {
+            "@event/*": ["interaction/event/*"],
+            "@event": ["interaction/event"],
+            "@command/*": ["interaction/command/*"],
+            "@command": ["interaction/command"],
+            "@db/*": ["db/*"],
+            "@package": ["../package.json"]
+        }
+    }
+}

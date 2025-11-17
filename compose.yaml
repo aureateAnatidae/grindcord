@@ -1,0 +1,9 @@
+services:
+    meibot:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        env_file: .env
+        restart: always
+        volumes:
+          - ./bot_data.db:/app/bot_data.db
