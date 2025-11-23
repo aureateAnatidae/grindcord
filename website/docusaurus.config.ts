@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'SmashCord',
+  title: 'GrindCord',
   tagline: 'Tools for Smash Discord communities',
   favicon: 'img/favicon.ico',
 
@@ -15,7 +15,7 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://smashcord.auan.ca',
+  url: 'https://grindcord.auan.ca',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
@@ -23,7 +23,7 @@ const config: Config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'aureateAnatidae', // Usually your GitHub org/user name.
-  projectName: 'smashcord', // Usually your repo name.
+  projectName: 'grindcord', // Usually your repo name.
 
   onBrokenLinks: 'throw',
 
@@ -75,9 +75,9 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'SmashCord',
+      title: 'GrindCord',
       logo: {
-        alt: 'SmashCord Logo',
+        alt: 'GrindCord Logo',
         src: 'img/logo.svg',
       },
       items: [
@@ -89,7 +89,7 @@ const config: Config = {
         },
         {to: '/blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/aureateAnatidae/smashcord',
+          href: 'https://github.com/aureateAnatidae/grindcord',
           label: 'GitHub',
           position: 'right',
         },
@@ -116,7 +116,7 @@ const config: Config = {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/aureateAnatidae/smashcord',
+              href: 'https://github.com/aureateAnatidae/grindcord',
             },
           ],
         },
