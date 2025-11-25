@@ -1,0 +1,9 @@
+updates:
+  label: Updates
+  permalink: /updates
+  description: Detailed information about our apps' updates
+
+technical:
+  label: Technical
+  permalink: /technical
+  description: About our technical decisions

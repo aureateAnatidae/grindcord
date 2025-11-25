@@ -9,7 +9,7 @@ on:
 
 defaults:
     run:
-        working-directory: website
+        working-directory: docsite
 
 jobs:
     build:
@@ -26,19 +26,19 @@ jobs:
                   run_install: false
             - uses: actions/setup-node@v4
               with:
-                  cache-dependency-path: website/pnpm-lock.yaml
+                  cache-dependency-path: docsite/pnpm-lock.yaml
                   node-version: 20
                   cache: pnpm
 
             - name: Install dependencies
               run: pnpm i
-            - name: Build website
+            - name: Build docsite
               run: pnpm run build
 
             - name: Upload Build Artifact
               uses: actions/upload-pages-artifact@v3
               with:
-                  path: website/build
+                  path: docsite/build
 
     deploy:
         name: Deploy to GitHub Pages
