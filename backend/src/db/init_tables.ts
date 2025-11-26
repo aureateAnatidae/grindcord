@@ -1,6 +1,5 @@
-import { SSBUCharTable } from "@db/character/schema";
 import { knexDb } from "@db/knexfile";
-import { SetCharacterTable, SetResultTable, SetTable } from "@db/set/schema";
+import { SetCharacterTable, SetResultTable, SetTable, SSBUCharTable } from "@v1/set/schema";
 import type { Knex } from "knex";
 
 import pino from "pino";
@@ -9,7 +8,7 @@ const log = pino();
 
 const tables = [SetTable, SetResultTable, SetCharacterTable, SSBUCharTable];
 
-export async function create_table_if_notexists(
+async function create_table_if_notexists(
     db: Knex,
     tableName: string,
     callback: (tableBuilder: Knex.CreateTableBuilder) => void,

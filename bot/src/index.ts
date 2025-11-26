@@ -15,8 +15,6 @@ const client = new Client({
         GatewayIntentBits.MessageContent,
     ],
 });
-await teardown();
-await init_tables();
 
 // Registers each command to the client
 if (process.env.SKIP_DEPLOY_COMMANDS !== "1") {

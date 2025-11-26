@@ -1,6 +1,8 @@
-import type { SetRecord, SetReport } from "@db/set/types";
+import type { SetRecord, SetReport } from "@v1/set/types";
 
 export async function reportSet(set_report: SetReport): Promise<SetReport> {}
+
+// Consider some sort of fighly flexible minimal abstraction over SQL so that developer/user can provide any bounds to search in table
 export async function getSets(user_id: string): Promise<Array<SetRecord>> {}
 export async function getSetsNLast(user_id: string, n: number): Promise<Array<SetRecord>> {}
 export async function getSetsDateRange(
@@ -8,7 +10,3 @@ export async function getSetsDateRange(
     start: string,
     end: string,
 ): Promise<Array<SetRecord>> {}
-
-// Will likely require some sort of computed columns w/ separate table?
-export async function getPoints(user_id: string): Promise<number> {};
-export async function getLeaderboard(tier: number): Promise<Array<string>> {}

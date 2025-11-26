@@ -4,6 +4,7 @@
         "module": "NodeNext",
         "moduleResolution": "NodeNext",
         "target": "ESNext",
+        
         "rootDir": ".",
         "outDir": "build",
 
@@ -17,7 +18,6 @@
             "@event": ["interaction/event"],
             "@command/*": ["interaction/command/*"],
             "@command": ["interaction/command"],
-            "@db/*": ["db/*"],
             "@package": ["../package.json"]
         }
     }
