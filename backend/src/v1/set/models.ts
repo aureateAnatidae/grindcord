@@ -5,7 +5,8 @@ export const SetTable = {
     initialize(table) {
         table.increments("set_id");
         table.string("guild_id").index("guild_id_idx");
-        table.timestamp("created_at").defaultTo(knexDb.fn.now());
+        // https://github.com/knex/knex/issues/6283
+        table.timestamp("created_at").defaultTo(new Date().toISOString());
     },
 };
 
@@ -13,14 +14,10 @@ export const SetResultTable = {
     table_name: "SetResult",
     initialize(table) {
         table.primary(["set_id", "user_id"]);
-        table.unique(["set_id", "is_win"], {
-            indexName: "set_winner_idx",
-        });
 
         table.integer("set_id").unsigned();
         table.string("user_id");
         table.integer("game_count");
-        table.boolean("is_win");
 
         table.foreign("set_id").references("set_id").inTable("Set");
     },

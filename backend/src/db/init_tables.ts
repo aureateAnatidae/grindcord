@@ -1,5 +1,5 @@
 import { knexDb } from "@db/knexfile";
-import { SetCharacterTable, SetResultTable, SetTable, SSBUCharTable } from "@v1/set/schema";
+import { SetCharacterTable, SetResultTable, SetTable, SSBUCharTable } from "@v1/set/models";
 import type { Knex } from "knex";
 
 import pino from "pino";
@@ -9,7 +9,7 @@ const log = pino();
 const tables = [SetTable, SetResultTable, SetCharacterTable, SSBUCharTable];
 
 async function create_table_if_notexists(
-    db: Knex,
+    db: Knex = knexDb,
     tableName: string,
     callback: (tableBuilder: Knex.CreateTableBuilder) => void,
 ): Promise<Knex.SchemaBuilder> {
@@ -28,8 +28,8 @@ export async function init_tables(db: Knex = knexDb) {
     for (const table of tables) {
         await create_table_if_notexists(trx, table.table_name, table.initialize);
     }
+    await trx.seed.run();
     await trx.commit();
-    await db.seed.run();
 }
 
 export async function teardown(db: Knex = knexDb) {
@@ -37,8 +37,10 @@ export async function teardown(db: Knex = knexDb) {
         log.error("`teardown` was called on a production database -- no action will be performed");
         return;
     }
+    const trx = await db.transaction();
     for (const table of tables) {
-        await db.schema.dropTableIfExists(table.table_name);
+        await trx.schema.dropTableIfExists(table.table_name);
     }
+    await trx.commit();
     log.info("Successfully performed `teardown` on database");
 }

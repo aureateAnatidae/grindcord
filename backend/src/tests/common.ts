@@ -3,7 +3,10 @@ import knex, { type Knex } from "knex";
 export const test_config = {
     client: "better-sqlite3",
     connection: {
-        filename: "./test.db",
+        filename: ":memory:",
+    },
+    seeds: {
+        director: "./seeds/"
     },
     useNullAsDefault: true,
 };
