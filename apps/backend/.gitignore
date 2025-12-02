@@ -27,5 +27,8 @@ lerna-debug.log*
 # misc
 .DS_Store
 
+# Build output
+dist/
+
 # Database file
 *.db
