@@ -6,7 +6,6 @@ on:
             - main
     workflow_dispatch:
 
-
 defaults:
     run:
         working-directory: apps/docsite
@@ -38,7 +37,7 @@ jobs:
             - name: Upload Build Artifact
               uses: actions/upload-pages-artifact@v3
               with:
-                  path: docsite/build
+                  path: apps/docsite/build
 
     deploy:
         name: Deploy to GitHub Pages
