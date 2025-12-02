@@ -1,12 +1,19 @@
 import { knexDb } from "@db/knexfile";
-import { SetCharacterTable, SetResultTable, SetTable, SSBUCharTable } from "@v1/set/models";
+import {
+    MatchCharacterTable,
+    MatchPlayerTable,
+    MatchTable,
+    SSBUCharTable,
+} from "@v1/match/models";
+import { MatchWinnerView } from "@v1/match/views";
 import type { Knex } from "knex";
 
 import pino from "pino";
 
 const log = pino();
 
-const tables = [SetTable, SetResultTable, SetCharacterTable, SSBUCharTable];
+const tables = [MatchTable, MatchPlayerTable, MatchCharacterTable, SSBUCharTable];
+const views = [MatchWinnerView];
 
 async function create_table_if_notexists(
     db: Knex = knexDb,
@@ -19,7 +26,9 @@ async function create_table_if_notexists(
         await db.schema.createTable(tableName, callback);
         log.info(`${tableName} table successfully initialized.`);
     } else {
-        log.info(`Database already contains ${tableName} table. Skipping initialization.`);
+        log.info(
+            `Database already contains ${tableName} table. Skipping initialization.`,
+        );
     }
 }
 
@@ -32,9 +41,21 @@ export async function init_tables(db: Knex = knexDb) {
     await trx.commit();
 }
 
+export async function init_views(db: Knex = knexDb) {
+    const trx = await db.transaction();
+    for (const _view of views) {
+        const view = _view(db);
+        await trx.schema.createViewOrReplace(view.view_name, view.initialize);
+        log.info(`${view.view_name} view successfully initialized.`);
+    }
+    await trx.commit();
+}
+
 export async function teardown(db: Knex = knexDb) {
     if (process.env.NODE_ENV === "production") {
-        log.error("`teardown` was called on a production database -- no action will be performed");
+        log.error(
+            "`teardown` was called on a production database -- no action will be performed",
+        );
         return;
     }
     const trx = await db.transaction();

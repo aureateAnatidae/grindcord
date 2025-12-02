@@ -2,7 +2,7 @@
     "compilerOptions": {
         "target": "ESNext",
         "module": "NodeNext",
-        
+
         "rootDir": ".",
         "outDir": "./dist",
 
@@ -16,9 +16,10 @@
 
         "baseUrl": "src",
         "paths": {
-            "@tests/*":["tests/*"],
+            "@tests/*": ["tests/*"],
             "@db/*": ["db/*"],
-            "@v1/*": ["v1/*"]
+            "@v1/*": ["v1/*"],
+            "@seeds/*": ["../seeds/*"]
         }
-    },
+    }
 }

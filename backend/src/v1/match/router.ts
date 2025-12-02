@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
-import type { SetRecord, SetReport } from "@v1/set/schemas";
-
+import type { MatchRecord, MatchReport } from "@v1/match/schemas";
 
 const app = new Hono();
 

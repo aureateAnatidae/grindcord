@@ -1,21 +1,18 @@
-import { init_tables, teardown } from "@db/init_tables";
+import { init_tables, init_views, teardown } from "@db/init_tables";
 import { serve } from "@hono/node-server";
-import set_router from "@v1/set/router";
+import match_router from "@v1/match/router";
 import user_router from "@v1/user/router";
 import { Hono } from "hono";
+import { trimTrailingSlash } from "hono/trailing-slash";
 import { openAPIRouteHandler } from "hono-openapi";
-import {
-  trimTrailingSlash,
-} from 'hono/trailing-slash'
-
 
 const app = new Hono();
 
 await teardown();
 await init_tables();
+await init_views();
 
-
-app.use(trimTrailingSlash())
+app.use(trimTrailingSlash());
 
 app.get("/", (c) => {
     return c.text("Hello Hono!");

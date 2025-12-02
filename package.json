@@ -1,0 +1,23 @@
+{
+    "name": "grindcord",
+    "private": true,
+    "author": "aureateAnatidae",
+    "license": "MIT",
+    "type": "module",
+    "version": "0.0.0",
+    "scripts": {
+        "preinstall": "npx only-allow pnpm",
+        "check": "turbo run check",
+        "dev": "turbo run dev",
+        "test": "vitest",
+        "build": "turbo run build --concurrency 12",
+        "preview": "turbo run preview",
+        "ci:build": "turbo run build test"
+    },
+    "devDependencies": {
+        "@types/node": "^24.10.1",
+        "typescript": "^5.9.3",
+        "vite-tsconfig-paths": "^5.1.4",
+        "vitest": "^4.0.14"
+    }
+}

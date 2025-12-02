@@ -1,3 +1,4 @@
+import { SeedSource } from "@db/SeedSource";
 import knex, { type Knex } from "knex";
 
 // TODO: https://knexjs.org/guide/#log
@@ -7,7 +8,7 @@ export const config = {
         filename: "./bot_data.db",
     },
     seeds: {
-        director: "./seeds/"
+        seedSource: new SeedSource(),
     },
     useNullAsDefault: true,
 };
