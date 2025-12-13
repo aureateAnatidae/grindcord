@@ -9,8 +9,8 @@
     "preinstall": "npx only-allow pnpm",
     "check": "nx run-many -t check",
     "build": "nx run-many --parallel 6 -t build",
-    "test": "vitest",
-    "ci:build": "nx run-many -t build test"
+    "test": "nx run-many -t test",
+    "ci:build": "nx run-many --parallel 6 -t build test"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.8",
