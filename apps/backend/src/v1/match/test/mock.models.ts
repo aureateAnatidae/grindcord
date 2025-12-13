@@ -83,7 +83,7 @@ export async function seed(knex: Knex) {
                 await knex("MatchCharacter").insert({
                     match_id,
                     user_id: user_id_list[pair[p_i]],
-                    fighter_number: SSBUCharEnumToInt.parse(characters[c_i]),
+                    fighter_number: SSBUCharEnumToInt.decode(characters[c_i]),
                 });
             }
         }

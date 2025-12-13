@@ -1,5 +1,4 @@
 import { knexDb } from "@db/knexfile";
-import type { ssbu_character_names } from "@seeds/SSBUCharacters";
 import type { MatchPlayer, MatchReport } from "@v1/match/schemas";
 import type { Knex } from "knex";
 
@@ -10,20 +9,23 @@ import type { Knex } from "knex";
 export async function reportMatchResult(
     match_report: MatchReport,
     db: Knex = knexDb,
-): Promise<void> {
+): Promise<number> {
     const { guild_id, players } = match_report;
     const trx = await db.transaction();
 
     const match_id = await createMatch(guild_id, trx);
+
     for (let p_i = 0; p_i < players.length; p_i++) {
         const player = players[p_i];
+        await createMatchPlayer(match_id, player.user_id, player.win_count, trx);
+
         for (let c_i = 0; c_i < player.character.length; c_i++) {
             const character = player.character[c_i];
-            createMatchCharacter(match_id, player.user_id, character);
+            await createMatchCharacter(match_id, player.user_id, character, trx);
         }
     }
-
     trx.commit();
+    return match_id;
 }
 
 /** Create a record in Match, returning the incrementing `match_id` of the new record.

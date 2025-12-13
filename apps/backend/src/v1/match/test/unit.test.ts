@@ -1,13 +1,15 @@
 import { init_tables, init_views, teardown } from "@db/init_tables";
 import { test_knexDb } from "@test/test_knexfile";
-
+import type { MatchPlayer, MatchReport } from "@v1/match/schemas";
 import {
     createMatch,
     createMatchCharacter,
     createMatchPlayer,
+    reportMatchResult,
 } from "@v1/match/service";
 import { mock_MatchReport } from "@v1/match/test/mock.schemas";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import type { MatchCharacterRecord, MatchPlayerRecord } from "../models";
 
 // const _mockMatchReport = MatchReport.parse({
 //     guild_id: "19283746",
@@ -76,18 +78,14 @@ describe("Match DB operations", () => {
     describe("Illegal insertions of MatchPlayer", () => {
         test.fails("Cannot insert MatchPlayer where [match_id, user_id] is not unique", async () => {
             const match_id = await createMatch(mockMatchReport.guild_id, test_knexDb);
-            await createMatchPlayer(
-                match_id,
-                mockMatchReport.players[0].user_id,
-                mockMatchReport.players[0].win_count,
-                test_knexDb,
-            );
-            await createMatchPlayer(
-                match_id,
-                mockMatchReport.players[0].user_id,
-                mockMatchReport.players[0].win_count,
-                test_knexDb,
-            );
+            for (let p_i = 0; p_i < 2; p_i++) {
+                await createMatchPlayer(
+                    match_id,
+                    mockMatchReport.players[0].user_id,
+                    mockMatchReport.players[0].win_count,
+                    test_knexDb,
+                );
+            }
         });
         test.fails("Cannot insert MatchPlayer where there is no Match record with matching match_id", async () => {
             await createMatchPlayer(
@@ -104,19 +102,18 @@ describe("Match DB operations", () => {
             const match_id = await createMatch(mockMatchReport.guild_id, test_knexDb);
 
             for (let p_i = 0; p_i < mockMatchReport.players.length; p_i++) {
-                const player = mockMatchReport.players[p_i];
+                const {user_id, win_count, character} = mockMatchReport.players[p_i];
                 await createMatchPlayer(
                     match_id,
-                    player.user_id,
-                    player.win_count,
+                    user_id,
+                    win_count,
                     test_knexDb,
                 );
-                for (let c_i = 0; c_i < player.character.length; c_i++) {
-                    const character = player.character[c_i];
+                for (let c_i = 0; c_i < character.length; c_i++) {
                     await createMatchCharacter(
                         match_id,
-                        player.user_id,
-                        character,
+                        user_id,
+                        character[c_i],
                         test_knexDb,
                     );
                 }
@@ -130,11 +127,11 @@ describe("Match DB operations", () => {
                 for (let p_i = 0; p_i < mockMatchReport.players.length; p_i++) {
                     const player = mockMatchReport.players[p_i];
                     for (let c_i = 0; c_i < player.character.length; c_i++) {
-                        const character = player.character[c_i];
+                        const fighter_number = player.character[c_i];
                         result.push({
                             match_id,
                             user_id: player.user_id,
-                            fighter_number: character,
+                            fighter_number
                         });
                     }
                 }
@@ -165,6 +162,46 @@ describe("Match DB operations", () => {
                 104,
                 test_knexDb,
             );
+        });
+    });
+
+    describe("Insert all records for an entire MatchReport (covers all insertion tests)", async () => {
+        test("Report a match", async () => {
+            const match_id = await reportMatchResult(mockMatchReport, test_knexDb);
+            const match_record = await test_knexDb("Match").first().where({ match_id });
+            const match_player_records = await test_knexDb("MatchPlayer")
+                .select()
+                .where({ match_id });
+            const match_character_records = await test_knexDb("MatchCharacter")
+                .select()
+                .where({ match_id });
+            const expected: MatchReport = {
+                guild_id: match_record.guild_id,
+                players: match_player_records.map(({ user_id, win_count }) => {
+                    return {
+                        user_id,
+                        win_count,
+                        character: match_character_records
+                            .filter(
+                                (character_record: MatchCharacterRecord) =>
+                                    character_record.user_id === user_id,
+                            )
+                            .map(
+                                (character_record: MatchCharacterRecord) =>
+                                    character_record.fighter_number,
+                            ),
+                    } as MatchPlayer;
+                }),
+            };
+            expect(mockMatchReport, "The records represent the MatchReport").toEqual({
+                ...expected,
+                players: expect.arrayContaining(
+                    expected.players.map((player) => ({
+                        ...player,
+                        character: expect.arrayContaining(player.character),
+                    })),
+                ),
+            });
         });
     });
 });
