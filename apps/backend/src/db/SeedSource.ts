@@ -1,8 +1,8 @@
+import { getLogger } from "@logtape/logtape";
 import { seed as SSBUCharacters_seed } from "@seeds/SSBUCharacters";
 import type { Knex } from "knex";
-import pino from "pino";
 
-const log = pino();
+const log = getLogger(["grindcord", "db"]);
 
 // Seek more customizable API where list of seeds can be provided to the seedsource
 export class SeedSource {

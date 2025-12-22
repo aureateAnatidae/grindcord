@@ -35,7 +35,7 @@ export const MatchReport = z.object({
 export type MatchReport = z.infer<typeof MatchReport>;
 
 export const MatchQuery = z.object({
-    match_id: z.int().optional(),
+    match_id: z.coerce.number().optional(),
     guild_id: z.string().optional(),
     user_id: z.string().optional(),
     character: SSBUCharEnumToFighterNumber.optional(),

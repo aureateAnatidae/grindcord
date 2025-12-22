@@ -29,16 +29,6 @@ export async function reportMatch(
     return match_id;
 }
 
-export async function getMatches(
-    match_query: MatchQuery,
-    db: Knex = knexDb,
-): Promise<Array<MatchReportDerivedRow>> {
-    const match_reports = await db<MatchReportDerivedRow>("MatchReportView")
-        .select()
-        .where({ ...match_query });
-    return match_reports;
-}
-
 /** Create a record in Match, returning the incrementing `match_id` of the new record.
  * @param {string} guild_id - The guild in which the match was recorded.
  */
@@ -76,14 +66,13 @@ export async function createMatchCharacter(
     return;
 }
 
-// Consider some sort of fighly flexible minimal abstraction over SQL so that developer/user can provide any bounds to search in table
-// export async function getMatches(user_id: string): Promise<Array<MatchRecord>> {}
-// export async function getMatchesNLast(
-//     user_id: string,
-//     n: number,
-// ): Promise<Array<MatchRecord>> {}
-// export async function getMatchesDateRange(
-//     user_id: string,
-//     start: string,
-//     end: string,
-// ): Promise<Array<MatchRecord>> {}
+/** Return joined match data matching the parameters in the `match_query` */
+export async function getMatches(
+    match_query: MatchQuery,
+    db: Knex = knexDb,
+): Promise<Array<MatchReportDerivedRow>> {
+    const match_reports = await db<MatchReportDerivedRow>("MatchReportView")
+        .select()
+        .where({ ...match_query });
+    return match_reports;
+}

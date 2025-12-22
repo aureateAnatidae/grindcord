@@ -1,25 +1,38 @@
 import { init_tables, init_views, teardown } from "@db/init_tables";
 import { serve } from "@hono/node-server";
+import { honoLogger } from "@logtape/hono";
+import { configure, getConsoleSink } from "@logtape/logtape";
 import match_router from "@v1/match/router";
 import user_router from "@v1/user/router";
 import { Hono } from "hono";
-import { trimTrailingSlash } from "hono/trailing-slash";
+import { requestId } from "hono/request-id";
 import { openAPIRouteHandler } from "hono-openapi";
 
-const app = new Hono();
+await configure({
+    sinks: { console: getConsoleSink() },
+    loggers: [
+        { category: ["grindcord"], sinks: ["console"], lowestLevel: "trace" },
+        { category: ["hono"], sinks: ["console"], lowestLevel: "info" },
+    ],
+});
+
+const app = new Hono({ strict: false });
 
 await teardown();
 await init_tables();
 await init_views();
 
-app.use(trimTrailingSlash());
+app.use(requestId());
+app.use(honoLogger());
 
 app.get("/", (c) => {
     return c.text("Hello Hono!");
 });
 
+app.route("/match", match_router);
+
 app.get(
-    "/docs",
+    "/openapi.json",
     openAPIRouteHandler(app, {
         documentation: {
             info: {

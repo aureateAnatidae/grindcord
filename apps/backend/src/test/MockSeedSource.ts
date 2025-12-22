@@ -1,9 +1,9 @@
+import { getLogger } from "@logtape/logtape";
 import { seed as SSBUCharacters_seed } from "@seeds/SSBUCharacters";
 import { seed as FakeMatches_seed } from "@v1/match/test/mock.models";
 import type { Knex } from "knex";
-import pino from "pino";
 
-const log = pino();
+const log = getLogger(["grindcord", "db", "test"]);
 
 export class MockSeedSource {
     getSeeds() {

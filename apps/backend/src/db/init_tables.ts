@@ -1,4 +1,5 @@
 import { knexDb } from "@db/knexfile";
+import { getLogger } from "@logtape/logtape";
 import {
     MatchCharacterTable,
     MatchPlayerTable,
@@ -8,9 +9,7 @@ import {
 import { MatchReportView, MatchWinnerView } from "@v1/match/views";
 import type { Knex } from "knex";
 
-import pino from "pino";
-
-const log = pino();
+const log = getLogger(["grindcord", "db"]);
 
 const tables = [MatchTable, MatchPlayerTable, MatchCharacterTable, SSBUCharTable];
 const views = [MatchWinnerView, MatchReportView];
