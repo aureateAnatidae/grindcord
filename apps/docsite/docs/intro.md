@@ -7,7 +7,23 @@ sidebar_position: 1
 
 We have some user-friendly guides appropriate for all levels of expertise!
 
-# Reporting a set
-# Checking the leaderboard
-# Checking my sets
-# Checking other people's sets
+# For admins
+- Setting up Grindcord
+    - Installing Grindcord
+    - Permission and tier roles
+    
+# For users
+- Reporting a match
+- Checking the leaderboard
+- Checking my matches
+    - by date
+    - by win/loss
+    - by character
+- Checking other people's matches
+
+# Advanced: Self-hosting
+- Docker
+- Discord Bot
+- Bring your own database
+
+# Advanced: Exporting data

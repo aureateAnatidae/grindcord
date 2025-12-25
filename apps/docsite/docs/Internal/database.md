@@ -13,18 +13,19 @@ Matches are reported to the backend. These reports contain the data:
 - Match count (3-0)
 - The fighters used by each respective user
 
-##### External Dependencies
+# External Dependencies
 
-A user of Grindcord SHOULD NOT be stored explicitly in our database. A [`GuildMember`](https://discord.com/developers/docs/resources/guild#get-guild-member) is an external dependency provided by Discord. A [`GuildMember`](https://discord.com/developers/docs/resources/guild#get-guild-member)'s `user_id` on the [`user`](https://discord.com/developers/docs/resources/user#user-object) field SHOULD be considered a primary key for our purposes.
+A user of Grindcord SHOULD NOT be stored explicitly in our database. A [`GuildMember`](https://discord.com/developers/docs/resources/guild#guild-member-object) is an external dependency provided by Discord. A [`GuildMember`](https://discord.com/developers/docs/resources/guild#guild-member-object)'s `user_id` on the [`user`](https://discord.com/developers/docs/resources/user#user-object) field SHOULD be considered a primary key for our purposes.
 
-A guild SHOULD NOT be stored explicitly in our database. A [`Guild`](https://discord.com/developers/docs/resources/guild#get-guild) is an external dependency provided by Discord. A `Guild`'s `guild_id` SHOULD be considered a primary key for our purposes.
+A guild SHOULD NOT be stored explicitly in our database. A [`Guild`](https://discord.com/developers/docs/resources/guild#guild-object) is an external dependency provided by Discord. A `Guild`'s `guild_id` SHOULD be considered a primary key for our purposes.
 
 ```mermaid
 erDiagram
-    direction LR
     Guild
     GuildMember
 ```
+
+# Matches Played by Users
 
 We split this into three tables.
 
@@ -52,30 +53,62 @@ erDiagram
 
 ##### Entity Relation Diagram for Matches, storing the data that would be reported by a user.
 
-The winner of the match can be inferred by selecting the `MatchPlayer` record with the highest `win_count` among records with the same `match_id`.
+The winner of the match SHALL be inferred by selecting the `MatchPlayer` record with the highest `win_count` among records with the same `match_id`.
 
 Note that `guild_id` is not stored by the `Match` table. When a match is reported for a particular `guild_id` (a unique ID assigned by Discord for a particular Discord server), the match is reported for that "guild's" current season (see below).
+
+# Seasons for Guilds
 
 ```mermaid
 erDiagram
     direction LR
     Match {
-        int         match_id
-        int         season_id
+        int         match_id    PK
+        int         season_id   FK
         datetime    created_at
     }
     Season {
-        int         season_id
+        int         season_id   PK
         string      guild_id
         datetime    start_at
         datetime    end_at
     }
     Match }|--|| Season: "was played during"
-    Guild ||--o{ Season: "has a current or past"
+    Guild ||--o{ Season: "has a"
 ```
 
 ##### Entity Relation Diagram for Seasons.
 
 A guild's "current" season is a `Season` record for which the `guild_id` matches, and the system datetime is between `start_at` and `end_at`.
 
-In addition, a `Season` in which participants will be designated an individual tier. Participants in a `Season` are `GuildMember` who report having participated in a `Match` during a `Season`.
+> Queries for a guild's current season should be optimized by creating an index on a guild.
+
+A `Match` is played in a `Season` if the `season_id` matches a `Season` record's `season_id`. 
+
+In addition, a `Season` in which participants will be designated an individual tier. Participants in a `Season` are `GuildMember`s who report having participated in a `Match` during a `Season`.
+
+# Tiers for Users Playing Matches
+
+> We recommand some in-memory key-value database to store tiers for current seasons. This is not implemented for the current release of Grindcord.
+
+For past seasons, Grindcord SHALL keep a record of each participating user's role.
+
+```mermaid
+erDiagram
+    direction LR
+    UserSeasonTier {
+        string      user_id     PK
+        int         season_id   PK,FK
+        string      tier_role_id
+    }
+    Season {
+        int         season_id   PK
+        string      guild_id    PK
+        datetime    start_at
+        datetime    end_at
+    }
+    UserSeasonTier ||..|| User: "assigns a tier to"
+    UserSeasonTier }|--|| Season: "determines tier in season"
+```
+
+A `tier_role_id` is the `role_id` of a role in a Discord server.

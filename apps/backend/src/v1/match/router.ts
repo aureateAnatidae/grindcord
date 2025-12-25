@@ -15,7 +15,7 @@ app.get(
                 description: "Successful response",
                 content: {
                     "application/json": {
-                        schema: resolver(z.object({ sets: z.array(MatchReport) })),
+                        schema: resolver(z.object({ matches: z.array(MatchReport) })),
                     },
                 },
             },
@@ -39,7 +39,7 @@ app.post(
                 description: "Successful response",
                 content: {
                     "application/json": {
-                        schema: resolver(z.object({ set_id: z.int() })),
+                        schema: resolver(z.object({ match_id: z.int() })),
                     },
                 },
             },
