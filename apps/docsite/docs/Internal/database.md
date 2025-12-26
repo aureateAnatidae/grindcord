@@ -111,4 +111,11 @@ erDiagram
     UserSeasonTier }|--|| Season: "determines tier in season"
 ```
 
-A `tier_role_id` is the `role_id` of a role in a Discord server.
+A `tier_role_id` is the `role_id` of a role determining the "tier" of a user in a Discord server.
+
+Users in a certain "tier" will gain or lose more or less points, depending on the "tier" of their opponent.
+
+> For example, a user with a role called "Tier 3" can be considered to be in tier 3 of the current season.
+> - A user in tier 3 may win 1 point or lose 5 points against a user in tier 1.
+> - The same user in tier 3 may win 3 points or lose 2 points against a user in the same tier.
+> The names of these roles ("Tier 3" in this example) can be any string. A role should be identified by a role id instead of its name. 
