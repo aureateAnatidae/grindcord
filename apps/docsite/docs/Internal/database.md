@@ -70,6 +70,7 @@ erDiagram
     Season {
         int         season_id   PK
         string      guild_id
+        string      season_name
         datetime    start_at
         datetime    end_at
     }
@@ -106,6 +107,7 @@ erDiagram
     Season {
         int         season_id   PK
         string      guild_id    PK
+        string      season_name
         datetime    start_at
         datetime    end_at
     }

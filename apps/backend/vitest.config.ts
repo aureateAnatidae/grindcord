@@ -3,7 +3,6 @@ import { defineConfig } from "vitest/config";
 
 const src_paths = {
     alias: {
-        "@seeds": resolve(__dirname, "./seeds"),
         "@test": resolve(__dirname, "./src/test"),
         "@db": resolve(__dirname, "./src/db"),
         "@v1": resolve(__dirname, "./src/v1"),

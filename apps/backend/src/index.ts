@@ -1,5 +1,5 @@
+import { SeedSource as SSBUCharacterSeedSource } from "@db/BaseSeedSource";
 import { init_tables, init_views, run_seed, teardown } from "@db/init_tables";
-import { SeedSource as SSBUCharacterSeedSource } from "@db/SeedSource";
 import { serve } from "@hono/node-server";
 import { honoLogger } from "@logtape/hono";
 import { configure, getConsoleSink } from "@logtape/logtape";
@@ -34,6 +34,7 @@ app.get("/", (c) => {
 });
 
 app.route("/match", match_router);
+app.route("/user", user_router);
 
 app.get(
     "/openapi.json",

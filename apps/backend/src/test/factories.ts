@@ -1,4 +1,4 @@
-// General utilities for generating mock data
+// General utilities for generating test data
 
 import { ssbu_character_names } from "@db/seeds/SSBUCharacters";
 import { faker } from "@faker-js/faker";

@@ -1,4 +1,9 @@
 import { knexDb } from "@db/knexfile";
+import type {
+    MatchCharacterRecord,
+    MatchPlayerRecord,
+    MatchRecord,
+} from "@v1/match/models";
 import type { MatchQuery, MatchReport } from "@v1/match/schemas";
 import type { MatchReportDerivedRow } from "@v1/match/views";
 import type { Knex } from "knex";
@@ -36,7 +41,7 @@ export async function createMatch(
     guild_id: string,
     db: Knex = knexDb,
 ): Promise<number> {
-    const match_id = await db("Match").insert({ guild_id });
+    const match_id = await db<MatchRecord>("Match").insert({ guild_id });
     return match_id[0];
 }
 
@@ -47,7 +52,7 @@ export async function createMatchPlayer(
     win_count: number,
     db: Knex = knexDb,
 ): Promise<void> {
-    await db("MatchPlayer").insert({ match_id, user_id, win_count });
+    await db<MatchPlayerRecord>("MatchPlayer").insert({ match_id, user_id, win_count });
     return;
 }
 
@@ -58,7 +63,7 @@ export async function createMatchCharacter(
     fighter_number: number,
     db: Knex = knexDb,
 ): Promise<void> {
-    await db("MatchCharacter").insert({
+    await db<MatchCharacterRecord>("MatchCharacter").insert({
         match_id,
         user_id,
         fighter_number,

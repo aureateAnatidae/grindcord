@@ -34,12 +34,14 @@ export const MatchReport = z.object({
 });
 export type MatchReport = z.infer<typeof MatchReport>;
 
-export const MatchQuery = z.object({
-    match_id: z.coerce.number().optional(),
-    guild_id: z.string().optional(),
-    user_id: z.string().optional(),
-    character: SSBUCharEnumToFighterNumber.optional(),
-    before_datetime: z.iso.datetime().optional(),
-    after_datetime: z.iso.datetime().optional(),
-});
+export const MatchQuery = z
+    .object({
+        match_id: z.coerce.number(),
+        guild_id: z.string(),
+        user_id: z.string(),
+        character: SSBUCharEnumToFighterNumber,
+        before_datetime: z.iso.datetime(),
+        after_datetime: z.iso.datetime(),
+    })
+    .partial();
 export type MatchQuery = z.infer<typeof MatchQuery>;
