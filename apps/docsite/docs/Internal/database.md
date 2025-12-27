@@ -74,7 +74,7 @@ erDiagram
         datetime    end_at
     }
     Match }|--|| Season: "was played during"
-    Guild }|--o{ Season: "has a"
+    Guild }|--o| Season: "has a"
 ```
 
 ##### Entity Relation Diagram for Seasons.
