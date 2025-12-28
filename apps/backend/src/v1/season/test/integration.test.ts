@@ -44,12 +44,20 @@ describe("Season table operations", () => {
     });
     describe("Use `getSeasons`", () => {
         test("Typical", async () => {
+            const past_season = pastSeasonRecordFactory();
+            const current_season = currentSeasonRecordFactory();
+            const future_season = futureSeasonRecordFactory();
             await seed_db(
-                new TestSeedSource({ season_records: [currentSeasonRecordFactory()] }),
+                new TestSeedSource({
+                    season_records: [past_season, current_season, future_season],
+                }),
                 test_knexDb,
             );
-            const result = await getSeasons({ during: Date() }, test_knexDb);
-            console.log(result);
+
+            const result = await getSeasons({ during: (new Date()).toISOString() }, test_knexDb);
+
+            expect(result).toHaveLength(1);
+            expect(result[0]).toMatchObject(current_season);
 
             // const match_id = await createMatch(mockMatchReport.guild_id, test_knexDb);
             // const created_match = await test_knexDb("Match")

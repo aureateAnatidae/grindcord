@@ -16,10 +16,10 @@ export async function getSeasons(
         query.where({ season_id });
     }
     if (season_name) {
-        query.whereILike(season_name, "%season_name%");
+        query.whereILike(season_name, `%{season_name}%`);
     }
     if (during) {
-        query.where("end_at", "<=", during).where("start_at", "<=", during);
+        query.where("end_at", ">=", during).where("start_at", "<=", during);
     }
     return await query;
 }
