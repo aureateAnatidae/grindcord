@@ -33,26 +33,31 @@ export class TestSeedSource {
     }
 }
 
+beforeEach(async () => {
+    await init_tables(test_knexDb);
+    await init_views(test_knexDb);
+});
+afterEach(async () => {
+    await teardown(test_knexDb);
+});
+
 describe("Season table operations", () => {
-    beforeEach(async () => {
-        await init_tables(test_knexDb);
-        await init_views(test_knexDb);
-    });
-    afterEach(async () => {
-        await teardown(test_knexDb);
-    });
+    let past_season: Omit<SeasonRecord, "season_id">;
+    let current_season: Omit<SeasonRecord, "season_id">;
+    let future_season: Omit<SeasonRecord, "season_id">;
     describe("Use `getSeasons`", () => {
-        test("Based on `after` and `before` arguments", async () => {
-            const past_season = pastSeasonRecordFactory();
-            const current_season = currentSeasonRecordFactory();
-            const future_season = futureSeasonRecordFactory();
+        beforeEach(async () => {
+            past_season = pastSeasonRecordFactory();
+            current_season = currentSeasonRecordFactory();
+            future_season = futureSeasonRecordFactory();
             await seed_db(
                 new TestSeedSource({
                     season_records: [past_season, current_season, future_season],
                 }),
                 test_knexDb,
             );
-
+        });
+        test("Based on `after` and `before` arguments", async () => {
             const current_result = await getSeasons(
                 { before: new Date().toISOString(), after: new Date().toISOString() },
                 test_knexDb,
@@ -91,6 +96,44 @@ describe("Season table operations", () => {
                 expect.arrayContaining([
                     expect.objectContaining(current_season),
                     expect.objectContaining(past_season),
+                ]),
+            );
+        });
+        test("Boundary", async () => {
+            const before_at_start_result = await getSeasons(
+                {
+                    before: new Date(
+                        new Date(current_season.start_at).getTime(),
+                    ).toISOString(),
+                },
+                test_knexDb,
+            );
+            expect(
+                before_at_start_result,
+                "Set `before` to a Season's `start_at`",
+            ).toHaveLength(2);
+            expect(before_at_start_result).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining(current_season),
+                    expect.objectContaining(past_season),
+                ]),
+            );
+            const after_on_end_result = await getSeasons(
+                {
+                    after: new Date(
+                        new Date(current_season.end_at).getTime(),
+                    ).toISOString(),
+                },
+                test_knexDb,
+            );
+            expect(
+                after_on_end_result,
+                "Set `before` to a Season's `start_at`",
+            ).toHaveLength(2);
+            expect(after_on_end_result).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining(current_season),
+                    expect.objectContaining(future_season),
                 ]),
             );
         });
