@@ -92,7 +92,7 @@ In addition, a `Season` in which participants will be designated an individual t
 
 # Tiers for Users Playing Matches
 
-> We recommand some in-memory key-value database to store tiers for current seasons. This is not implemented for the current release of Grindcord.
+> We recommend some in-memory key-value database to store tiers for current seasons. This is not implemented for the current release of Grindcord.
 
 For past seasons, Grindcord SHALL keep a record of each participating user's role.
 
