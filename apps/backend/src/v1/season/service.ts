@@ -1,3 +1,4 @@
+import { knexDb } from "@db/knexfile";
 import type { SeasonRecord } from "@v1/season/models";
 import type { Knex } from "knex";
 import type { SeasonQuery } from "./schemas";
@@ -9,7 +10,7 @@ import type { SeasonQuery } from "./schemas";
  */
 export async function getSeasons(
     season_query: SeasonQuery,
-    db: Knex,
+    db: Knex = knexDb,
 ): Promise<Array<SeasonRecord>> {
     const { season_id, guild_id, season_name, after, before } = season_query;
     const query = db<SeasonRecord>("Season").select();
@@ -20,7 +21,7 @@ export async function getSeasons(
         query.where({ season_id });
     }
     if (season_name) {
-        query.whereILike(season_name, `%{season_name}%`);
+        query.whereILike("season_name", `%${season_name}%`);
     }
     if (after) {
         query.where("end_at", ">=", after);
