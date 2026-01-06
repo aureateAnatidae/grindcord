@@ -21,7 +21,8 @@ export async function getSeasons(
         query.where({ season_id });
     }
     if (season_name) {
-        query.whereILike("season_name", `%${season_name}%`);
+        // https://github.com/knex/knex/issues/5920
+        query.whereLike("season_name", `%${season_name}%`);
     }
     if (after) {
         query.where("end_at", ">=", after);
