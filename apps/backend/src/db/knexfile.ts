@@ -5,7 +5,7 @@ import { BaseSeedSource } from "./BaseSeedSource";
 export const config: Knex.Config<Knex.Sqlite3ConnectionConfig> = {
     client: "better-sqlite3",
     connection: {
-        filename: "./bot_data.db",
+        filename: "./grindcord.db",
     },
     seeds: {
         seedSource: new BaseSeedSource(),
