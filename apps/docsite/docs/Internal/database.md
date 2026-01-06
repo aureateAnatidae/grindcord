@@ -69,22 +69,21 @@ erDiagram
     }
     Season {
         int         season_id   PK
-        string      guild_id
         string      season_name
         datetime    start_at
         datetime    end_at
     }
+    GuildSeason {
+        string      guild_id    PK
+        int         season_id   FK
+    }
     Match }|--|| Season: "was played during"
-    Guild }|--o| Season: "has a"
+    GuildSeason }|--o| Season: "registers a Guild in a"
 ```
 
 ##### Entity Relation Diagram for Seasons.
 
-A guild's "current" season is a `Season` record for which the `guild_id` matches, and the system datetime is between `start_at` and `end_at`.
-
 More than one guild may participate in a single season, however, a guild may only participate in a single season.
-
-> Queries for a guild's current season should be optimized by creating an index on a guild.
 
 A `Match` is played in a `Season` if the `season_id` matches a `Season` record's `season_id`.
 
@@ -106,7 +105,6 @@ erDiagram
     }
     Season {
         int         season_id   PK
-        string      guild_id    PK
         string      season_name
         datetime    start_at
         datetime    end_at
@@ -123,3 +121,5 @@ Users in a certain "tier" will gain or lose more or less points, depending on th
 > - A user in tier 3 may win 1 point or lose 5 points against a user in tier 1.
 > - The same user in tier 3 may win 3 points or lose 2 points against a user in the same tier.
 > The names of these roles ("Tier 3" in this example) can be any string. A role should be identified by a role id instead of its name. 
+
+> Edge case: A user may be a member of multiple guilds which participate in a single season, having different tier roles between the guilds. If the roles belong to different tiers in the same season, how can we know the user's true tier?
