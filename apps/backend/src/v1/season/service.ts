@@ -37,11 +37,17 @@ export async function getSeason(
     season_id: number,
     db: Knex = knexDb,
 ): Promise<SeasonRecord | null> {
-    return await db("Season").first().where({ season_id }).then((res) => res ?? null);
+    return await db("Season")
+        .first()
+        .where({ season_id })
+        .then((res) => res ?? null);
 }
 
 /** Given the definition for a Season, insert a SeasonRecord. */
-export async function createSeason(season: SeasonCreate, db: Knex = knexDb): Promise<number> {
+export async function createSeason(
+    season: SeasonCreate,
+    db: Knex = knexDb,
+): Promise<number> {
     return await db("Season")
         .insert({ ...season })
         .then((res) => res[0]);

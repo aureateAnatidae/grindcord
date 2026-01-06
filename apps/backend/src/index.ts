@@ -5,7 +5,7 @@ import { honoLogger } from "@logtape/hono";
 import { configure, getConsoleSink } from "@logtape/logtape";
 import match_router from "@v1/match/router";
 import season_router from "@v1/season/router";
-import user_router from "@v1/user/router";
+// import guild_router from "@v1/guild/router";
 import { Hono } from "hono";
 import { requestId } from "hono/request-id";
 import { openAPIRouteHandler } from "hono-openapi";
@@ -35,7 +35,7 @@ app.get("/", (c) => {
 
 app.route("/match", match_router);
 app.route("/season", season_router);
-app.route("/user", user_router);
+// app.route("/user", _router);
 
 app.get(
     "/openapi.json",

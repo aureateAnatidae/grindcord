@@ -202,24 +202,18 @@ describe("Season table operations", () => {
         describe("The `season_id` exists in the Season table", () => {
             test("Nominal", async () => {
                 expect(
-                    await getSeason(
-                        season_id,
-                        test_knexDb,
-                    ),
-                    "Season with matching `season_id`"
+                    await getSeason(season_id, test_knexDb),
+                    "Season with matching `season_id`",
                 ).toEqual(expect.objectContaining(season));
-            })
+            });
         });
         describe("The `season_id` does NOT exist in the Season table", () => {
             test("Nominal", async () => {
                 expect(
-                    await getSeason(
-                        67,
-                        test_knexDb,
-                    ),
+                    await getSeason(67, test_knexDb),
                     "No Season with matching `season_id`, should return `null`",
                 ).toEqual(null);
-            })
+            });
         });
-    })
+    });
 });

@@ -1,4 +1,4 @@
-import { getUserPoints } from "@v1/user/service";
+import { getUserPoints } from "@v1/guild/service";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { z } from "zod";
