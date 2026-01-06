@@ -1,6 +1,6 @@
 import { knexDb } from "@db/knexfile";
 import type { SeasonRecord } from "@v1/season/models";
-import type { SeasonQuery } from "@v1/season/schemas";
+import type { Season, SeasonCreate, SeasonQuery } from "@v1/season/schemas";
 import type { Knex } from "knex";
 
 /** Find the `season_id`s of Season records which match the parameters.
@@ -28,4 +28,21 @@ export async function getSeasonIds(
         query.where("start_at", "<=", before);
     }
     return await query.then((res) => res.map((r) => r.season_id));
+}
+
+/** Find the SeasonRecord with the matching `season_id`.
+ * If no match is found, it returns null.
+ */
+export async function getSeason(
+    season_id: number,
+    db: Knex = knexDb,
+): Promise<SeasonRecord | null> {
+    return await db("Season").first().where({ season_id }).then((res) => res ?? null);
+}
+
+/** Given the definition for a Season, insert a SeasonRecord. */
+export async function createSeason(season: SeasonCreate, db: Knex = knexDb): Promise<number> {
+    return await db("Season")
+        .insert({ ...season })
+        .then((res) => res[0]);
 }

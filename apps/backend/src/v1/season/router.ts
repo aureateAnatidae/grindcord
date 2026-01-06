@@ -1,5 +1,5 @@
-import { Season, SeasonQuery } from "@v1/season/schemas";
-import { getSeasonIds } from "@v1/season/service";
+import { Season, SeasonId, SeasonQuery } from "@v1/season/schemas";
+import { createSeason, getSeason, getSeasonIds } from "@v1/season/service";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { z } from "zod";
@@ -15,7 +15,7 @@ app.get(
                 description: "Successful response",
                 content: {
                     "application/json": {
-                        schema: resolver(z.object({ matches: z.array(z.int()) })),
+                        schema: resolver(z.object({ season_ids: z.array(SeasonId) })),
                     },
                 },
             },
@@ -25,8 +25,31 @@ app.get(
     async (c) => {
         const season_query: SeasonQuery = c.req.valid("query");
 
-        const result = await getSeasonIds(season_query);
-        return c.json(result);
+        const season_ids: Array<number> = await getSeasonIds(season_query);
+        return c.json({ season_ids });
+    },
+);
+
+app.get(
+    "/:season_id",
+    describeRoute({
+        description: "Get Season with a matching `season_id`",
+        responses: {
+            200: {
+                description: "Successful response",
+                content: {
+                    "application/json": {
+                        schema: resolver(z.object({ season: Season })),
+                    },
+                },
+            },
+        },
+    }),
+    validator("param", SeasonId),
+    async (c) => {
+        const { season_id } = c.req.valid("param");
+        const season: Season | null = await getSeason(season_id);
+        return season ? c.json({ season }) : c.notFound();
     },
 );
 
@@ -39,7 +62,7 @@ app.post(
                 description: "Successful response",
                 content: {
                     "application/json": {
-                        schema: resolver(z.object({ season_id: z.int() })),
+                        schema: resolver(z.object({ season_id: SeasonId })),
                     },
                 },
             },
@@ -49,8 +72,8 @@ app.post(
     async (c) => {
         const season: Season = c.req.valid("json");
 
-        const season_id = await createSeason(season);
-        return c.json(season_id);
+        const season_id: number = await createSeason(season);
+        return c.json({ season_id });
     },
 );
 

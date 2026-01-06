@@ -2,7 +2,7 @@ import { init_tables, init_views, seed_db, teardown } from "@db/init_tables";
 import { test_knexDb } from "@test/test_knexfile";
 import type { SeasonRecord } from "@v1/season/models";
 import { Season } from "@v1/season/schemas";
-import { getSeasonIds } from "@v1/season/service";
+import { getSeason, getSeasonIds } from "@v1/season/service";
 import {
     currentSeasonRecordFactory,
     futureSeasonRecordFactory,
@@ -182,4 +182,44 @@ describe("Season table operations", () => {
             });
         });
     });
+    describe("Use `getSeason`", () => {
+        let season: Omit<SeasonRecord, "season_id">;
+        let season_id: number;
+        beforeEach(async () => {
+            season = currentSeasonRecordFactory({
+                season_name: "Real's Arena Season #9",
+            });
+            await seed_db(
+                new TestSeedSource({
+                    season_records: [season],
+                }),
+                test_knexDb,
+            );
+            season_id = await test_knexDb("Season")
+                .first("season_id")
+                .then((res) => res.season_id);
+        });
+        describe("The `season_id` exists in the Season table", () => {
+            test("Nominal", async () => {
+                expect(
+                    await getSeason(
+                        season_id,
+                        test_knexDb,
+                    ),
+                    "Season with matching `season_id`"
+                ).toEqual(expect.objectContaining(season));
+            })
+        });
+        describe("The `season_id` does NOT exist in the Season table", () => {
+            test("Nominal", async () => {
+                expect(
+                    await getSeason(
+                        67,
+                        test_knexDb,
+                    ),
+                    "No Season with matching `season_id`, should return `null`",
+                ).toEqual(null);
+            })
+        });
+    })
 });
