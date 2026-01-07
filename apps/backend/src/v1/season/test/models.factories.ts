@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker";
-import { snowflake } from "@test/factories";
 import type { SeasonRecord } from "@v1/season/models";
 import type { Knex } from "knex";
 
@@ -7,7 +6,6 @@ export const seasonRecordFactory = (
     season_record: Partial<SeasonRecord> | undefined = undefined,
 ): Omit<SeasonRecord, "season_id"> => {
     return {
-        guild_id: snowflake(),
         season_name: faker.animal.fish(),
         start_at: faker.date.recent().toISOString(),
         end_at: faker.date.soon().toISOString(),

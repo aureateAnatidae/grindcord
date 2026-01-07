@@ -1,5 +1,6 @@
 import { knexDb } from "@db/knexfile";
 import { getLogger } from "@logtape/logtape";
+import { GuildSeasonTable } from "@v1/guild/models";
 import {
     MatchCharacterTable,
     MatchPlayerTable,
@@ -8,7 +9,6 @@ import {
 } from "@v1/match/models";
 import { MatchReportView, MatchWinnerView } from "@v1/match/views";
 import { SeasonTable } from "@v1/season/models";
-import { Season } from "@v1/season/schemas";
 import type { Knex } from "knex";
 
 const log = getLogger(["grindcord", "db"]);
@@ -19,6 +19,7 @@ const tables = [
     MatchCharacterTable,
     SSBUCharTable,
     SeasonTable,
+    GuildSeasonTable,
 ];
 const views = [MatchWinnerView, MatchReportView];
 

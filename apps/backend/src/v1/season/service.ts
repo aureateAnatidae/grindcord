@@ -12,11 +12,9 @@ export async function getSeasonIds(
     season_query: SeasonQuery,
     db: Knex = knexDb,
 ): Promise<Array<number>> {
-    const { guild_id, season_name, after, before } = season_query;
+    const { season_name, after, before } = season_query;
     const query = db<SeasonRecord>("Season").select("season_id");
-    if (guild_id) {
-        query.where({ guild_id });
-    }
+
     if (season_name) {
         // https://github.com/knex/knex/issues/5920
         query.whereLike("season_name", `%${season_name}%`);

@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const Season = z.object({
     season_id: z.int(),
-    guild_id: z.string(),
     season_name: z.string(),
     start_at: z.iso.datetime(),
     end_at: z.iso.datetime(),
@@ -21,7 +20,6 @@ export type SeasonId = z.infer<typeof SeasonId>;
 
 export const SeasonQuery = z
     .object({
-        guild_id: z.string(),
         season_name: z.string(),
         after: z.iso.datetime(),
         before: z.iso.datetime(),
