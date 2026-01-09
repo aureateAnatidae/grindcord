@@ -58,8 +58,10 @@ beforeEach(async () => {
     await seed_db(new TestSeedSource(), test_knexDb);
 });
 afterEach(async () => {
-    await teardown(test_knexDb);
+    await test_knexDb.destroy();
+    test_knexDb.initialize();
 });
+
 describe("Match table operations", () => {
     describe("Use `createMatch`", () => {
         describe("Random", () => {
@@ -72,6 +74,7 @@ describe("Match table operations", () => {
                     .first()
                     .where({ match_id });
                 expect(created_match.guild_id).toEqual(fakeMatchReport.guild_id);
+                console.log(created_match);
             });
         });
     });

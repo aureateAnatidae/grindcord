@@ -14,3 +14,16 @@ export async function getGuildSeason(
         .where({ guild_id })
         .then((res) => res ?? null);
 }
+
+/** Upsert a GuildSeason record.
+ */
+export async function upsertGuildSeason(
+    guild_id: string,
+    season_id: number,
+    db: Knex = knexDb,
+): Promise<GuildSeasonRecord> {
+    return await db<GuildSeasonRecord>("GuildSeason")
+        .upsert({ guild_id, season_id })
+        .returning(["guild_id", "season_id"])
+        .then((res) => res[0]);
+}
