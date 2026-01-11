@@ -15,15 +15,15 @@ export async function getGuildSeason(
         .then((res) => res ?? null);
 }
 
-/** Upsert a GuildSeason record.
+/** Insert a GuildSeason record.
  */
-export async function upsertGuildSeason(
+export async function insertGuildSeason(
     guild_id: string,
     season_id: number,
     db: Knex = knexDb,
 ): Promise<GuildSeasonRecord> {
     return await db<GuildSeasonRecord>("GuildSeason")
-        .upsert({ guild_id, season_id })
+        .insert({ guild_id, season_id })
         .returning(["guild_id", "season_id"])
         .then((res) => res[0]);
 }
