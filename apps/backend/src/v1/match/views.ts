@@ -1,4 +1,3 @@
-import { SQLiteDateTimeToISODateTime } from "@db/schemas";
 import { SSBUCharFighterNumber } from "@v1/match/schemas";
 import type { Knex } from "knex";
 import { z } from "zod";
@@ -27,7 +26,7 @@ export const MatchReportDerivedRow = z.object({
     user_id: z.string(),
     win_count: z.int(),
     fighter_number: SSBUCharFighterNumber,
-    created_at: SQLiteDateTimeToISODateTime,
+    created_at: z.iso.datetime(),
 });
 export type MatchReportDerivedRow = z.infer<typeof MatchReportDerivedRow>;
 export const MatchReportView = (db: Knex) => ({

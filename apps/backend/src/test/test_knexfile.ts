@@ -1,4 +1,4 @@
-import { MockSeedSource } from "@test/MockSeedSource";
+import { BaseSeedSource } from "@db/BaseSeedSource";
 import knex, { type Knex } from "knex";
 
 export const test_config: Knex.Config = {
@@ -7,7 +7,7 @@ export const test_config: Knex.Config = {
         filename: ":memory:",
     },
     seeds: {
-        seedSource: new MockSeedSource(),
+        seedSource: new BaseSeedSource(),
     },
     useNullAsDefault: true,
 };

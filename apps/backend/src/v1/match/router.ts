@@ -1,8 +1,8 @@
 import { MatchQuery, MatchReport } from "@v1/match/schemas";
+import { getMatches, reportMatch } from "@v1/match/service";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
 import { z } from "zod";
-import { getMatches, reportMatch } from "./service";
 
 const app = new Hono();
 

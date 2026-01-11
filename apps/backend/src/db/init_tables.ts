@@ -1,5 +1,6 @@
 import { knexDb } from "@db/knexfile";
 import { getLogger } from "@logtape/logtape";
+import { GuildSeasonTable } from "@v1/guild/models";
 import {
     MatchCharacterTable,
     MatchPlayerTable,
@@ -7,11 +8,19 @@ import {
     SSBUCharTable,
 } from "@v1/match/models";
 import { MatchReportView, MatchWinnerView } from "@v1/match/views";
+import { SeasonTable } from "@v1/season/models";
 import type { Knex } from "knex";
 
 const log = getLogger(["grindcord", "db"]);
 
-const tables = [MatchTable, MatchPlayerTable, MatchCharacterTable, SSBUCharTable];
+const tables = [
+    MatchTable,
+    MatchPlayerTable,
+    MatchCharacterTable,
+    SSBUCharTable,
+    SeasonTable,
+    GuildSeasonTable,
+];
 const views = [MatchWinnerView, MatchReportView];
 
 async function create_table_if_notexists(
@@ -31,13 +40,20 @@ async function create_table_if_notexists(
     }
 }
 
-export async function init_tables(db: Knex = knexDb) {
+export async function init_tables(db: Knex = knexDb): Promise<void> {
     const trx = await db.transaction();
     for (const table of tables) {
         await create_table_if_notexists(trx, table.table_name, table.initialize);
     }
     await trx.seed.run();
     await trx.commit();
+}
+
+export async function seed_db(
+    seedSource: Knex.SeedSource<unknown>,
+    db: Knex = knexDb,
+): Promise<void> {
+    await db.seed.run({ seedSource });
 }
 
 export async function init_views(db: Knex = knexDb) {
