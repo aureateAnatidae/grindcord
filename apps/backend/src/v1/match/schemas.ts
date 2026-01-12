@@ -6,7 +6,7 @@ export type SSBUCharEnum = z.infer<typeof SSBUCharEnum>;
 
 export const SSBUCharFighterNumber = z
     .int()
-    .min(1)
+    .min(0)
     .max(ssbu_character_names.length + 1);
 export type SSBUCharFighterNumber = z.infer<typeof SSBUCharFighterNumber>;
 

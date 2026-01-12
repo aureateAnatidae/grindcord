@@ -1,18 +1,15 @@
 import { ssbu_character_names } from "@db/seeds/SSBUCharacters";
-import { rand_character_array, randint, snowflake } from "@test/factories";
+import { randint, snowflake } from "@test/factories";
 import type {
     MatchCharacterRecord,
     MatchPlayerRecord,
     MatchRecord,
 } from "@v1/match/models";
-import { SSBUCharEnumToFighterNumber } from "@v1/match/schemas";
-import type { Knex } from "knex";
 
 export const matchRecordFactory = (
     match_record: Partial<MatchRecord> | undefined = undefined,
-): Omit<MatchRecord, "created_at"> => {
+): Omit<MatchRecord, "match_id" | "created_at"> => {
     return {
-        match_id: randint(1000),
         guild_id: snowflake(),
         ...match_record,
     };

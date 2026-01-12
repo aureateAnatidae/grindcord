@@ -1,7 +1,7 @@
 import { seed as SSBUCharacters_seed } from "@db/seeds/SSBUCharacters";
 import { getLogger } from "@logtape/logtape";
 import type { GuildSeasonRecord } from "@v1/guild/models";
-import type { MatchRecord } from "@v1/match/models";
+import type { MatchPlayerRecord, MatchRecord } from "@v1/match/models";
 import type { SeasonRecord } from "@v1/season/models";
 import type { Knex } from "knex";
 
@@ -28,8 +28,10 @@ export class BaseSeedSource {
     }
 }
 
+// Insert any records into the table
 type InsertSeedSourceProps = {
-    Match?: Array<Omit<MatchRecord, "match_id">>;
+    Match?: Array<Omit<MatchRecord, "match_id" | "created_at">>;
+    MatchPlayer?: Array<MatchPlayerRecord>;
     Season?: Array<Omit<SeasonRecord, "season_id">>;
     GuildSeason?: Array<GuildSeasonRecord>;
 };
