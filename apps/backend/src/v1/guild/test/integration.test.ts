@@ -1,7 +1,11 @@
 import { init_tables, init_views, seed_db, teardown } from "@db/init_tables";
 import { test_knexDb } from "@test/test_knexfile";
 import type { GuildSeasonRecord } from "@v1/guild/models";
-import { getGuildSeason, insertGuildSeason } from "@v1/guild/service";
+import {
+    getGuildSeason,
+    insertGuildSeason,
+    updateGuildSeason,
+} from "@v1/guild/service";
 import type { SeasonRecord } from "@v1/season/models";
 import { currentSeasonRecordFactory } from "@v1/season/test/models.factories";
 import { except } from "hono/combine";
@@ -113,10 +117,80 @@ describe("GuildSeason table operations", () => {
             test("Negative", async () => {
                 const { guild_id } = guild_season_record;
                 await test_knexDb("GuildSeason").insert(guild_season_record);
-                expect(
+                await expect(
                     insertGuildSeason(guild_id, season_id, test_knexDb),
                     "A `Guild` cannot have more than one record",
                 ).rejects.toThrowError("UNIQUE");
+            });
+        });
+    });
+    describe("Use `updateGuildSeason` to change the `season_id` of a `GuildSeason` record", () => {
+        let old_season_record: Omit<SeasonRecord, "season_id">;
+        let new_season_record: Omit<SeasonRecord, "season_id">;
+
+        let guild_season_record: GuildSeasonRecord;
+
+        let new_season_id: number;
+        beforeEach(async () => {
+            old_season_record = currentSeasonRecordFactory();
+            new_season_record = currentSeasonRecordFactory();
+            await seed_db(
+                new TestSeedSource([
+                    async (knex: Knex) => {
+                        await knex("Season").insert(old_season_record);
+                        await knex("Season").insert(new_season_record);
+                    },
+                ]),
+                test_knexDb,
+            );
+            const old_season_id = await await test_knexDb("Season")
+                .first()
+                .where(new_season_record)
+                .then((res) => res.season_id);
+            new_season_id = await test_knexDb("Season")
+                .first()
+                .where(new_season_record)
+                .then((res) => res.season_id);
+
+            guild_season_record = guildSeasonRecordFactory({
+                season_id: old_season_id,
+            });
+            await seed_db(
+                new TestSeedSource([
+                    async (knex: Knex) => {
+                        await knex("GuildSeason").insert(guild_season_record);
+                    },
+                ]),
+                test_knexDb,
+            );
+        });
+        describe("Updating an existing `GuildSeason` record", () => {
+            test("Nominal", async () => {
+                const { guild_id } = guild_season_record;
+                expect(
+                    await updateGuildSeason(guild_id, new_season_id, test_knexDb),
+                ).toBe(1);
+                expect(
+                    await test_knexDb("GuildSeason").first().where({ guild_id }),
+                ).toMatchObject({ guild_id, season_id: new_season_id });
+            });
+            test("Negative", async () => {
+                expect(
+                    await updateGuildSeason(
+                        "thefarmer'sguild",
+                        new_season_id,
+                        test_knexDb,
+                    ),
+                    "No rows affected when updating a `GuildSeason` that does not exist",
+                ).toBe(0);
+                await expect(
+                    updateGuildSeason(
+                        guild_season_record.guild_id,
+                        69420,
+                        test_knexDb,
+                    ),
+                    "Cannot update a `GuildSeason` to a `season_id` that does not exist",
+                ).rejects.toThrowError("FOREIGN");
             });
         });
     });

@@ -15,15 +15,34 @@ export async function getGuildSeason(
         .then((res) => res ?? null);
 }
 
-/** Insert a GuildSeason record.
+/**
+ * Insert a GuildSeason record.
  */
 export async function insertGuildSeason(
     guild_id: string,
     season_id: number,
     db: Knex = knexDb,
 ): Promise<GuildSeasonRecord> {
-    return await db<GuildSeasonRecord>("GuildSeason")
+    const guild_season_record: Array<GuildSeasonRecord> = await db<GuildSeasonRecord>(
+        "GuildSeason",
+    )
         .insert({ guild_id, season_id })
-        .returning(["guild_id", "season_id"])
-        .then((res) => res[0]);
+        .returning(["guild_id", "season_id"]);
+    return guild_season_record[0];
+}
+
+/**
+ * Update a GuildSeason record.
+ */
+export async function updateGuildSeason(
+    guild_id: string,
+    season_id: number,
+    db: Knex = knexDb,
+): Promise<number> {
+    const affected_rows = await db<GuildSeasonRecord>(
+        "GuildSeason",
+    )
+        .update({ season_id })
+        .where({ guild_id });
+    return affected_rows;
 }

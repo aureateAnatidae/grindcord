@@ -1,5 +1,9 @@
 import { GuildId, GuildSeason } from "@v1/guild/schemas";
-import { getGuildSeason, upsertGuildSeason } from "@v1/guild/service";
+import {
+    getGuildSeason,
+    insertGuildSeason,
+    updateGuildSeason,
+} from "@v1/guild/service";
 import { SeasonId } from "@v1/season/schemas";
 import { Hono } from "hono";
 import { describeRoute, resolver, validator } from "hono-openapi";
@@ -35,7 +39,7 @@ app.get(
 app.post(
     "/season/:guild_id",
     describeRoute({
-        description: "Change the guild's currently active season",
+        description: "Create a guild's registration to a season",
         responses: {
             200: {
                 description: "Successful response",
@@ -52,12 +56,29 @@ app.post(
     async (c) => {
         const { guild_id } = c.req.valid("param");
         const { season_id } = c.req.valid("json");
-        const guild_season: GuildSeason | null = await upsertGuildSeason(
-            guild_id,
-            season_id,
-        );
+        const guild_season: GuildSeason = await insertGuildSeason(guild_id, season_id);
         return c.json({ guild_season });
     },
 );
 
+app.patch(
+    "/season/:guild_id",
+    describeRoute({
+        description: "Change a guild's currently active season",
+        responses: {
+            200: {
+                description: "Successful response",
+                content: {},
+            },
+        },
+    }),
+    validator("param", GuildId),
+    validator("json", SeasonId),
+    async (c) => {
+        const { guild_id } = c.req.valid("param");
+        const { season_id } = c.req.valid("json");
+        const affected_rows: number = await updateGuildSeason(guild_id, season_id);
+        return affected_rows === 0 ? c.notFound() : c.status(200);
+    },
+);
 export default app;

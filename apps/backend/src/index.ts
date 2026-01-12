@@ -3,9 +3,9 @@ import { init_tables, init_views, seed_db } from "@db/init_tables";
 import { serve } from "@hono/node-server";
 import { honoLogger } from "@logtape/hono";
 import { configure, getConsoleSink } from "@logtape/logtape";
+import guild_router from "@v1/guild/router";
 import match_router from "@v1/match/router";
 import season_router from "@v1/season/router";
-// import guild_router from "@v1/guild/router";
 import { Hono } from "hono";
 import { requestId } from "hono/request-id";
 import { openAPIRouteHandler } from "hono-openapi";
@@ -35,6 +35,7 @@ app.get("/", (c) => {
 
 app.route("/match", match_router);
 app.route("/season", season_router);
+app.route("/guild", guild_router);
 // app.route("/user", _router);
 
 app.get(
