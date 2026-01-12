@@ -1,4 +1,4 @@
-import { init_tables, init_views, seed_db, teardown } from "@db/init_tables";
+import { init_tables, init_views, seed_db } from "@db/init_tables";
 import { test_knexDb } from "@test/test_knexfile";
 import type { GuildSeasonRecord } from "@v1/guild/models";
 import {
@@ -8,7 +8,6 @@ import {
 } from "@v1/guild/service";
 import type { SeasonRecord } from "@v1/season/models";
 import { currentSeasonRecordFactory } from "@v1/season/test/models.factories";
-import { except } from "hono/combine";
 import type { Knex } from "knex";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { guildSeasonRecordFactory } from "./models.factories";

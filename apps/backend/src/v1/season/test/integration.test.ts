@@ -1,7 +1,6 @@
 import { init_tables, init_views, seed_db, teardown } from "@db/init_tables";
 import { test_knexDb } from "@test/test_knexfile";
 import type { SeasonRecord } from "@v1/season/models";
-import { Season } from "@v1/season/schemas";
 import { getSeason, getSeasonIds } from "@v1/season/service";
 import {
     currentSeasonRecordFactory,

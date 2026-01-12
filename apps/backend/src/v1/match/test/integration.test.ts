@@ -1,4 +1,4 @@
-import { init_tables, init_views, seed_db, teardown } from "@db/init_tables";
+import { init_tables, init_views, seed_db } from "@db/init_tables";
 import { test_knexDb } from "@test/test_knexfile";
 import type { MatchCharacterRecord } from "@v1/match/models";
 import type { MatchQuery, MatchReport } from "@v1/match/schemas";
