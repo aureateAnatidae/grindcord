@@ -1,5 +1,5 @@
 import { init_tables, init_views, seed_db } from "@db/init_tables";
-import { test_knexDb } from "@test/test_knexfile";
+import { knexDb } from "@db/knexfile";
 import type { MatchCharacterRecord } from "@v1/match/models";
 import type { MatchQuery, MatchReport } from "@v1/match/schemas";
 import {
@@ -52,27 +52,22 @@ export class TestSeedSource {
 }
 
 beforeEach(async () => {
-    await init_tables(test_knexDb);
-    await init_views(test_knexDb);
+    await init_tables(knexDb);
+    await init_views(knexDb);
 
-    await seed_db(new TestSeedSource(), test_knexDb);
+    await seed_db(new TestSeedSource(), knexDb);
 });
 afterEach(async () => {
-    await test_knexDb.destroy();
-    test_knexDb.initialize();
+    await knexDb.destroy();
+    knexDb.initialize();
 });
 
 describe("Match table operations", () => {
     describe("Use `createMatch`", () => {
         describe("Random", () => {
             test("Insert a Match record with `createMatch`", async () => {
-                const match_id = await createMatch(
-                    fakeMatchReport.guild_id,
-                    test_knexDb,
-                );
-                const created_match = await test_knexDb("Match")
-                    .first()
-                    .where({ match_id });
+                const match_id = await createMatch(fakeMatchReport.guild_id, knexDb);
+                const created_match = await knexDb("Match").first().where({ match_id });
                 expect(created_match.guild_id).toEqual(fakeMatchReport.guild_id);
                 console.log(created_match);
             });
@@ -85,15 +80,15 @@ describe("MatchPlayer table operations", () => {
         describe("Random", () => {
             test("Insert a pair of MatchPlayer records", async () => {
                 const { guild_id } = fakeMatchReport;
-                const match_id = (await test_knexDb("Match").insert({ guild_id }))[0];
+                const match_id = (await knexDb("Match").insert({ guild_id }))[0];
 
                 await createMatchPlayer(
                     match_id,
                     fakeMatchReport.players[0].user_id,
                     fakeMatchReport.players[0].win_count,
-                    test_knexDb,
+                    knexDb,
                 );
-                const created_match_player = await test_knexDb("MatchPlayer")
+                const created_match_player = await knexDb("MatchPlayer")
                     .first()
                     .where({ match_id });
 
@@ -108,16 +103,14 @@ describe("MatchPlayer table operations", () => {
             describe("Illegal insertions of MatchPlayer", () => {
                 test.fails("Cannot insert MatchPlayer where [match_id, user_id] is not unique", async () => {
                     const { guild_id } = fakeMatchReport;
-                    const match_id = (
-                        await test_knexDb("Match").insert({ guild_id })
-                    )[0];
+                    const match_id = (await knexDb("Match").insert({ guild_id }))[0];
 
                     for (let p_i = 0; p_i < 2; p_i++) {
                         await createMatchPlayer(
                             match_id,
                             fakeMatchReport.players[0].user_id,
                             fakeMatchReport.players[0].win_count,
-                            test_knexDb,
+                            knexDb,
                         );
                     }
                 });
@@ -126,7 +119,7 @@ describe("MatchPlayer table operations", () => {
                         3000,
                         fakeMatchReport.players[0].user_id,
                         fakeMatchReport.players[0].win_count,
-                        test_knexDb,
+                        knexDb,
                     );
                 });
             });
@@ -139,25 +132,23 @@ describe("MatchCharacter table operations", () => {
         describe("Random", () => {
             test("Insert a pair of MatchCharacter records", async () => {
                 const { guild_id } = fakeMatchReport;
-                const match_id = (await test_knexDb("Match").insert({ guild_id }))[0];
+                const match_id = (await knexDb("Match").insert({ guild_id }))[0];
 
                 for (let p_i = 0; p_i < fakeMatchReport.players.length; p_i++) {
                     const { user_id, win_count, character } =
                         fakeMatchReport.players[p_i];
-                    await createMatchPlayer(match_id, user_id, win_count, test_knexDb);
+                    await createMatchPlayer(match_id, user_id, win_count, knexDb);
                     for (let c_i = 0; c_i < character.length; c_i++) {
                         await createMatchCharacter(
                             match_id,
                             user_id,
                             character[c_i],
-                            test_knexDb,
+                            knexDb,
                         );
                     }
                 }
 
-                const created = await test_knexDb<MatchCharacterRecord>(
-                    "MatchCharacter",
-                )
+                const created = await knexDb<MatchCharacterRecord>("MatchCharacter")
                     .select()
                     .where({ match_id });
                 const expected = (): Array<MatchCharacterRecord> => {
@@ -182,14 +173,14 @@ describe("MatchCharacter table operations", () => {
         describe("Negative", () => {
             test.fails("Cannot insert MatchCharacter where [match_id, user_id, fighter_number] is not unique, specifically, `fighter_number`", async () => {
                 const { guild_id } = fakeMatchReport;
-                const match_id = (await test_knexDb("Match").insert({ guild_id }))[0];
+                const match_id = (await knexDb("Match").insert({ guild_id }))[0];
 
                 for (let i = 0; i < 2; i++) {
                     await createMatchCharacter(
                         match_id,
                         fakeMatchReport.players[i].user_id,
                         fakeMatchReport.players[1].character[0],
-                        test_knexDb,
+                        knexDb,
                     );
                 }
             });
@@ -197,9 +188,9 @@ describe("MatchCharacter table operations", () => {
                 const { guild_id } = fakeMatchReport;
                 const { user_id } = fakeMatchReport.players[1];
 
-                const match_id = (await test_knexDb("Match").insert({ guild_id }))[0];
-                await test_knexDb("MatchPlayer").insert({ match_id, user_id });
-                await createMatchCharacter(match_id, user_id, 104, test_knexDb);
+                const match_id = (await knexDb("Match").insert({ guild_id }))[0];
+                await knexDb("MatchPlayer").insert({ match_id, user_id });
+                await createMatchCharacter(match_id, user_id, 104, knexDb);
             });
         });
     });
@@ -211,12 +202,12 @@ describe("Operations across Match, MatchPlayer, and MatchCharacter tables", () =
             test("Report a match", async () => {
                 const { guild_id } = fakeMatchReport;
 
-                const match_id = await reportMatch(fakeMatchReport, test_knexDb);
+                const match_id = await reportMatch(fakeMatchReport, knexDb);
 
-                const match_player_records = await test_knexDb("MatchPlayer")
+                const match_player_records = await knexDb("MatchPlayer")
                     .select()
                     .where({ match_id });
-                const match_character_records = await test_knexDb("MatchCharacter")
+                const match_character_records = await knexDb("MatchCharacter")
                     .select()
                     .where({ match_id });
                 const expected: MatchReport = {
@@ -251,11 +242,11 @@ describe("Operations across Match, MatchPlayer, and MatchCharacter tables", () =
     describe("Use `getMatches`", async () => {
         describe("Random", () => {
             test("Retrieve a derived row from MatchReportView by match_id", async () => {
-                const match_id = await reportMatch(fakeMatchReport, test_knexDb);
+                const match_id = await reportMatch(fakeMatchReport, knexDb);
                 const { guild_id } = fakeMatchReport;
 
                 const match_query: MatchQuery = { match_id };
-                const result = await getMatches(match_query, test_knexDb);
+                const result = await getMatches(match_query, knexDb);
                 const created_at = result[0].created_at;
 
                 const expected = [];

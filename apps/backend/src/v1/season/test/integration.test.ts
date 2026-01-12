@@ -1,5 +1,5 @@
 import { init_tables, init_views, seed_db, teardown } from "@db/init_tables";
-import { test_knexDb } from "@test/test_knexfile";
+import { knexDb } from "@db/knexfile";
 import type { SeasonRecord } from "@v1/season/models";
 import { getSeason, getSeasonIds } from "@v1/season/service";
 import {
@@ -33,11 +33,11 @@ export class TestSeedSource {
 }
 
 beforeEach(async () => {
-    await init_tables(test_knexDb);
-    await init_views(test_knexDb);
+    await init_tables(knexDb);
+    await init_views(knexDb);
 });
 afterEach(async () => {
-    await teardown(test_knexDb);
+    await teardown(knexDb);
 });
 
 describe("Season table operations", () => {
@@ -58,17 +58,17 @@ describe("Season table operations", () => {
                     new TestSeedSource({
                         season_records: [past_season, current_season, future_season],
                     }),
-                    test_knexDb,
+                    knexDb,
                 );
-                past_season_id = await test_knexDb("Season")
+                past_season_id = await knexDb("Season")
                     .first()
                     .where(past_season)
                     .then((res) => res.season_id);
-                current_season_id = await test_knexDb("Season")
+                current_season_id = await knexDb("Season")
                     .first("season_id")
                     .where(current_season)
                     .then((res) => res.season_id);
-                future_season_id = await test_knexDb("Season")
+                future_season_id = await knexDb("Season")
                     .first("season_id")
                     .where(future_season)
                     .then((res) => res.season_id);
@@ -79,7 +79,7 @@ describe("Season table operations", () => {
                         before: new Date().toISOString(),
                         after: new Date().toISOString(),
                     },
-                    test_knexDb,
+                    knexDb,
                 );
                 expect(current_result, "Returns only the ongoing Season").toHaveLength(
                     1,
@@ -91,13 +91,13 @@ describe("Season table operations", () => {
                         before: new Date(Date.now() - 1000).toISOString(),
                         after: new Date(Date.now() + 1000).toISOString(),
                     },
-                    test_knexDb,
+                    knexDb,
                 );
                 expect(reverse_result, "`after` > `before`").toHaveLength(1);
 
                 const current_future_result = await getSeasonIds(
                     { after: new Date().toISOString() },
-                    test_knexDb,
+                    knexDb,
                 );
                 expect(
                     current_future_result,
@@ -109,7 +109,7 @@ describe("Season table operations", () => {
 
                 const current_past_result = await getSeasonIds(
                     { before: new Date().toISOString() },
-                    test_knexDb,
+                    knexDb,
                 );
                 expect(current_past_result, "Returns current and past").toHaveLength(2);
                 expect(current_past_result).toEqual(
@@ -123,7 +123,7 @@ describe("Season table operations", () => {
                             new Date(current_season.start_at).getTime(),
                         ).toISOString(),
                     },
-                    test_knexDb,
+                    knexDb,
                 );
                 expect(
                     before_at_start_result,
@@ -138,7 +138,7 @@ describe("Season table operations", () => {
                             new Date(current_season.end_at).getTime(),
                         ).toISOString(),
                     },
-                    test_knexDb,
+                    knexDb,
                 );
                 expect(
                     after_on_end_result,
@@ -160,9 +160,9 @@ describe("Season table operations", () => {
                     new TestSeedSource({
                         season_records: [named_season],
                     }),
-                    test_knexDb,
+                    knexDb,
                 );
-                season_id = await test_knexDb("Season")
+                season_id = await knexDb("Season")
                     .first("season_id")
                     .then((res) => res.season_id);
             });
@@ -170,12 +170,12 @@ describe("Season table operations", () => {
                 expect(
                     await getSeasonIds(
                         { season_name: named_season.season_name },
-                        test_knexDb,
+                        knexDb,
                     ),
                     "Full name match",
                 ).toEqual(expect.arrayContaining([season_id]));
                 expect(
-                    await getSeasonIds({ season_name: "Real's" }, test_knexDb),
+                    await getSeasonIds({ season_name: "Real's" }, knexDb),
                     "Partial name match",
                 ).toEqual(expect.arrayContaining([season_id]));
             });
@@ -192,16 +192,16 @@ describe("Season table operations", () => {
                 new TestSeedSource({
                     season_records: [season],
                 }),
-                test_knexDb,
+                knexDb,
             );
-            season_id = await test_knexDb("Season")
+            season_id = await knexDb("Season")
                 .first("season_id")
                 .then((res) => res.season_id);
         });
         describe("The `season_id` exists in the Season table", () => {
             test("Nominal", async () => {
                 expect(
-                    await getSeason(season_id, test_knexDb),
+                    await getSeason(season_id, knexDb),
                     "Season with matching `season_id`",
                 ).toEqual(expect.objectContaining(season));
             });
@@ -209,7 +209,7 @@ describe("Season table operations", () => {
         describe("The `season_id` does NOT exist in the Season table", () => {
             test("Nominal", async () => {
                 expect(
-                    await getSeason(67, test_knexDb),
+                    await getSeason(67, knexDb),
                     "No Season with matching `season_id`, should return `null`",
                 ).toEqual(null);
             });

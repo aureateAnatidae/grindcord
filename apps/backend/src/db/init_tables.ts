@@ -24,9 +24,9 @@ const tables = [
 const views = [MatchWinnerView, MatchReportView];
 
 async function create_table_if_notexists(
-    db: Knex = knexDb,
     tableName: string,
     callback: (tableBuilder: Knex.CreateTableBuilder) => void,
+    db: Knex = knexDb,
 ): Promise<Knex.SchemaBuilder> {
     const exists = await db.schema.hasTable(tableName);
     if (!exists) {
@@ -43,7 +43,7 @@ async function create_table_if_notexists(
 export async function init_tables(db: Knex = knexDb): Promise<void> {
     const trx = await db.transaction();
     for (const table of tables) {
-        await create_table_if_notexists(trx, table.table_name, table.initialize);
+        await create_table_if_notexists(table.table_name, table.initialize, trx);
     }
     await trx.seed.run();
     await trx.commit();

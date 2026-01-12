@@ -1,5 +1,5 @@
 import { init_tables, init_views, seed_db } from "@db/init_tables";
-import { test_knexDb } from "@test/test_knexfile";
+import { knexDb } from "@db/knexfile";
 import type { GuildSeasonRecord } from "@v1/guild/models";
 import {
     getGuildSeason,
@@ -30,12 +30,12 @@ export class TestSeedSource {
 }
 
 beforeEach(async () => {
-    await init_tables(test_knexDb);
-    await init_views(test_knexDb);
+    await init_tables(knexDb);
+    await init_views(knexDb);
 });
 afterEach(async () => {
-    await test_knexDb.destroy();
-    test_knexDb.initialize();
+    await knexDb.destroy();
+    knexDb.initialize();
 });
 
 describe("GuildSeason table operations", () => {
@@ -53,10 +53,10 @@ describe("GuildSeason table operations", () => {
                         await knex("Season").insert(season_record);
                     },
                 ]),
-                test_knexDb,
+                knexDb,
             );
 
-            season_id = await test_knexDb("Season")
+            season_id = await knexDb("Season")
                 .first()
                 .where(season_record)
                 .then((res) => res.season_id);
@@ -69,14 +69,12 @@ describe("GuildSeason table operations", () => {
                         await knex("GuildSeason").insert(guild_season_record);
                     },
                 ]),
-                test_knexDb,
+                knexDb,
             );
         });
         test("Nominal", async () => {
             expect(
-                await getGuildSeason(guild_id, test_knexDb).then(
-                    (res) => res?.season_id,
-                ),
+                await getGuildSeason(guild_id, knexDb).then((res) => res?.season_id),
             ).toBe(season_id);
         });
     });
@@ -93,10 +91,10 @@ describe("GuildSeason table operations", () => {
                         await knex("Season").insert(season_record);
                     },
                 ]),
-                test_knexDb,
+                knexDb,
             );
 
-            season_id = await test_knexDb("Season")
+            season_id = await knexDb("Season")
                 .first()
                 .where(season_record)
                 .then((res) => res.season_id);
@@ -107,17 +105,17 @@ describe("GuildSeason table operations", () => {
             test("Nominal", async () => {
                 const { guild_id } = guild_season_record;
                 expect(
-                    await insertGuildSeason(guild_id, season_id, test_knexDb),
+                    await insertGuildSeason(guild_id, season_id, knexDb),
                 ).toMatchObject(guild_season_record);
                 expect(
-                    await test_knexDb("GuildSeason").first().where(guild_season_record),
+                    await knexDb("GuildSeason").first().where(guild_season_record),
                 ).toMatchObject(guild_season_record);
             });
             test("Negative", async () => {
                 const { guild_id } = guild_season_record;
-                await test_knexDb("GuildSeason").insert(guild_season_record);
+                await knexDb("GuildSeason").insert(guild_season_record);
                 await expect(
-                    insertGuildSeason(guild_id, season_id, test_knexDb),
+                    insertGuildSeason(guild_id, season_id, knexDb),
                     "A `Guild` cannot have more than one record",
                 ).rejects.toThrowError("UNIQUE");
             });
@@ -140,13 +138,13 @@ describe("GuildSeason table operations", () => {
                         await knex("Season").insert(new_season_record);
                     },
                 ]),
-                test_knexDb,
+                knexDb,
             );
-            const old_season_id = await await test_knexDb("Season")
+            const old_season_id = await await knexDb("Season")
                 .first()
                 .where(new_season_record)
                 .then((res) => res.season_id);
-            new_season_id = await test_knexDb("Season")
+            new_season_id = await knexDb("Season")
                 .first()
                 .where(new_season_record)
                 .then((res) => res.season_id);
@@ -160,30 +158,26 @@ describe("GuildSeason table operations", () => {
                         await knex("GuildSeason").insert(guild_season_record);
                     },
                 ]),
-                test_knexDb,
+                knexDb,
             );
         });
         describe("Updating an existing `GuildSeason` record", () => {
             test("Nominal", async () => {
                 const { guild_id } = guild_season_record;
+                expect(await updateGuildSeason(guild_id, new_season_id, knexDb)).toBe(
+                    1,
+                );
                 expect(
-                    await updateGuildSeason(guild_id, new_season_id, test_knexDb),
-                ).toBe(1);
-                expect(
-                    await test_knexDb("GuildSeason").first().where({ guild_id }),
+                    await knexDb("GuildSeason").first().where({ guild_id }),
                 ).toMatchObject({ guild_id, season_id: new_season_id });
             });
             test("Negative", async () => {
                 expect(
-                    await updateGuildSeason(
-                        "thefarmer'sguild",
-                        new_season_id,
-                        test_knexDb,
-                    ),
+                    await updateGuildSeason("thefarmer'sguild", new_season_id, knexDb),
                     "No rows affected when updating a `GuildSeason` that does not exist",
                 ).toBe(0);
                 await expect(
-                    updateGuildSeason(guild_season_record.guild_id, 69420, test_knexDb),
+                    updateGuildSeason(guild_season_record.guild_id, 69420, knexDb),
                     "Cannot update a `GuildSeason` to a `season_id` that does not exist",
                 ).rejects.toThrowError("FOREIGN");
             });

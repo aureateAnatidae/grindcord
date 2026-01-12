@@ -1,5 +1,5 @@
 import { randint, snowflake } from "@test/factories";
-import type { GuildSeasonRecord } from "../models";
+import type { GuildSeasonRecord } from "@v1/guild/models";
 
 export const guildSeasonRecordFactory = (
     guild_season_record: Partial<GuildSeasonRecord> | undefined = undefined,

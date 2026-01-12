@@ -1,8 +1,9 @@
+import { BaseSeedSource } from "@db/BaseSeedSource";
+import config from "config";
 import knex, { type Knex } from "knex";
-import { BaseSeedSource } from "./BaseSeedSource";
 
 // TODO: https://knexjs.org/guide/#log
-export const config: Knex.Config<Knex.Sqlite3ConnectionConfig> = {
+export const production_config: Knex.Config<Knex.Sqlite3ConnectionConfig> = {
     client: "better-sqlite3",
     connection: {
         filename: "./grindcord.db",
@@ -13,4 +14,17 @@ export const config: Knex.Config<Knex.Sqlite3ConnectionConfig> = {
     useNullAsDefault: true,
 };
 
-export const knexDb: Knex = knex(config);
+export const test_config: Knex.Config<Knex.Sqlite3ConnectionConfig> = {
+    client: "better-sqlite3",
+    connection: {
+        filename: ":memory:",
+    },
+    seeds: {
+        seedSource: new BaseSeedSource(),
+    },
+    useNullAsDefault: true,
+};
+
+export const knexDb: Knex = knex(
+    config.NODE_ENV === "test" ? test_config : production_config,
+);
