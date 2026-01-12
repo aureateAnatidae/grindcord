@@ -184,11 +184,7 @@ describe("GuildSeason table operations", () => {
                     "No rows affected when updating a `GuildSeason` that does not exist",
                 ).toBe(0);
                 await expect(
-                    updateGuildSeason(
-                        guild_season_record.guild_id,
-                        69420,
-                        test_knexDb,
-                    ),
+                    updateGuildSeason(guild_season_record.guild_id, 69420, test_knexDb),
                     "Cannot update a `GuildSeason` to a `season_id` that does not exist",
                 ).rejects.toThrowError("FOREIGN");
             });

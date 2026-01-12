@@ -39,9 +39,7 @@ export async function updateGuildSeason(
     season_id: number,
     db: Knex = knexDb,
 ): Promise<number> {
-    const affected_rows = await db<GuildSeasonRecord>(
-        "GuildSeason",
-    )
+    const affected_rows = await db<GuildSeasonRecord>("GuildSeason")
         .update({ season_id })
         .where({ guild_id });
     return affected_rows;
