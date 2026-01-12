@@ -1,4 +1,4 @@
-import { init_tables, init_views, seed_db } from "@db/init_tables";
+import { init_tables, init_views } from "@db/init_tables";
 import { knexDb } from "@db/knexfile";
 import type { MatchCharacterRecord } from "@v1/match/models";
 import type { MatchQuery, MatchReport } from "@v1/match/schemas";
@@ -9,10 +9,10 @@ import {
     getMatches,
     reportMatch,
 } from "@v1/match/service";
-import { seed as MatchFactorySeed } from "@v1/match/test/models.factories";
 import { matchReportFactory } from "@v1/match/test/schemas.factories";
 import { MatchReportDerivedRow } from "@v1/match/views";
 import type { Knex } from "knex";
+import { InsertSeedSource } from "@db/CustomSeedSource";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 
 // const _fakeMatchReport = MatchReport.parse({
@@ -32,30 +32,10 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 // });
 const fakeMatchReport = matchReportFactory();
 
-export class TestSeedSource {
-    getSeeds() {
-        return Promise.resolve(["FakeMatches"]);
-    }
-
-    async getSeed(seed: string) {
-        switch (seed) {
-            case "FakeMatches":
-                return {
-                    async seed(knex: Knex) {
-                        await MatchFactorySeed(knex);
-                    },
-                };
-            default:
-                throw new Error(`Invalid seed: "${seed}"`);
-        }
-    }
-}
 
 beforeEach(async () => {
     await init_tables(knexDb);
     await init_views(knexDb);
-
-    await seed_db(new TestSeedSource(), knexDb);
 });
 afterEach(async () => {
     await knexDb.destroy();

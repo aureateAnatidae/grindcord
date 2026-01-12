@@ -1,5 +1,6 @@
-import { BaseSeedSource as SSBUCharacterSeedSource } from "@db/BaseSeedSource";
-import { init_tables, init_views, seed_db } from "@db/init_tables";
+import { BaseSeedSource as SSBUCharacterSeedSource } from "@db/CustomSeedSource";
+import { init_tables, init_views } from "@db/init_tables";
+import { knexDb } from "@db/knexfile";
 import { serve } from "@hono/node-server";
 import { honoLogger } from "@logtape/hono";
 import { configure, getConsoleSink } from "@logtape/logtape";
@@ -22,7 +23,7 @@ const app = new Hono({ strict: false });
 
 await init_tables();
 
-await seed_db(new SSBUCharacterSeedSource());
+await knexDb.seed.run();
 
 await init_views();
 

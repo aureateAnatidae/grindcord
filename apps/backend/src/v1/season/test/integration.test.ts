@@ -1,4 +1,5 @@
-import { init_tables, init_views, seed_db, teardown } from "@db/init_tables";
+import { InsertSeedSource } from "@db/CustomSeedSource";
+import { init_tables, init_views, teardown } from "@db/init_tables";
 import { knexDb } from "@db/knexfile";
 import type { SeasonRecord } from "@v1/season/models";
 import { getSeason, getSeasonIds } from "@v1/season/service";
@@ -7,30 +8,7 @@ import {
     futureSeasonRecordFactory,
     pastSeasonRecordFactory,
 } from "@v1/season/test/models.factories";
-import type { Knex } from "knex";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
-
-type TestSeedSourceProps = {
-    season_records: Array<Omit<SeasonRecord, "season_id">>;
-};
-export class TestSeedSource {
-    season_records: Array<Omit<SeasonRecord, "season_id">>;
-    constructor({ season_records }: TestSeedSourceProps) {
-        this.season_records = season_records;
-    }
-
-    getSeeds() {
-        return Promise.resolve(this.season_records);
-    }
-
-    async getSeed(seed: Omit<SeasonRecord, "season_id">) {
-        return {
-            async seed(knex: Knex) {
-                await knex("Season").insert(seed);
-            },
-        };
-    }
-}
 
 beforeEach(async () => {
     await init_tables(knexDb);
@@ -54,12 +32,11 @@ describe("Season table operations", () => {
                 past_season = pastSeasonRecordFactory();
                 current_season = currentSeasonRecordFactory();
                 future_season = futureSeasonRecordFactory();
-                await seed_db(
-                    new TestSeedSource({
-                        season_records: [past_season, current_season, future_season],
+                await knexDb.seed.run({
+                    seedSource: new InsertSeedSource({
+                        Season: [past_season, current_season, future_season],
                     }),
-                    knexDb,
-                );
+                });
                 past_season_id = await knexDb("Season")
                     .first()
                     .where(past_season)
@@ -156,12 +133,11 @@ describe("Season table operations", () => {
                 named_season = currentSeasonRecordFactory({
                     season_name: "Real's Arena Season #6",
                 });
-                await seed_db(
-                    new TestSeedSource({
-                        season_records: [named_season],
+                await knexDb.seed.run({
+                    seedSource: new InsertSeedSource({
+                        Season: [named_season],
                     }),
-                    knexDb,
-                );
+                });
                 season_id = await knexDb("Season")
                     .first("season_id")
                     .then((res) => res.season_id);
@@ -188,12 +164,11 @@ describe("Season table operations", () => {
             season = currentSeasonRecordFactory({
                 season_name: "Real's Arena Season #9",
             });
-            await seed_db(
-                new TestSeedSource({
-                    season_records: [season],
+            await knexDb.seed.run({
+                seedSource: new InsertSeedSource({
+                    Season: [season],
                 }),
-                knexDb,
-            );
+            });
             season_id = await knexDb("Season")
                 .first("season_id")
                 .then((res) => res.season_id);

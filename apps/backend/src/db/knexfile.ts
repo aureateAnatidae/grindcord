@@ -1,4 +1,4 @@
-import { BaseSeedSource } from "@db/BaseSeedSource";
+import { BaseSeedSource } from "@db/CustomSeedSource";
 import config from "config";
 import knex, { type Knex } from "knex";
 

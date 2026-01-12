@@ -49,13 +49,6 @@ export async function init_tables(db: Knex = knexDb): Promise<void> {
     await trx.commit();
 }
 
-export async function seed_db(
-    seedSource: Knex.SeedSource<unknown>,
-    db: Knex = knexDb,
-): Promise<void> {
-    await db.seed.run({ seedSource });
-}
-
 export async function init_views(db: Knex = knexDb) {
     const trx = await db.transaction();
     for (const _view of views) {

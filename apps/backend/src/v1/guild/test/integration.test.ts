@@ -1,4 +1,5 @@
-import { init_tables, init_views, seed_db } from "@db/init_tables";
+import { InsertSeedSource } from "@db/CustomSeedSource";
+import { init_tables, init_views } from "@db/init_tables";
 import { knexDb } from "@db/knexfile";
 import type { GuildSeasonRecord } from "@v1/guild/models";
 import {
@@ -11,23 +12,6 @@ import { currentSeasonRecordFactory } from "@v1/season/test/models.factories";
 import type { Knex } from "knex";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { guildSeasonRecordFactory } from "./models.factories";
-
-export class TestSeedSource {
-    seeds: Array<(knex: Knex) => Promise<void>>;
-    constructor(seeds: Array<(knex: Knex) => Promise<void>>) {
-        this.seeds = seeds;
-    }
-
-    getSeeds() {
-        return Promise.resolve(this.seeds);
-    }
-
-    async getSeed(seed: (knex: Knex) => Promise<void>) {
-        return {
-            seed,
-        };
-    }
-}
 
 beforeEach(async () => {
     await init_tables(knexDb);
@@ -47,14 +31,9 @@ describe("GuildSeason table operations", () => {
         let guild_id: string;
         beforeEach(async () => {
             season_record = currentSeasonRecordFactory();
-            await seed_db(
-                new TestSeedSource([
-                    async (knex: Knex) => {
-                        await knex("Season").insert(season_record);
-                    },
-                ]),
-                knexDb,
-            );
+            await knexDb.seed.run({
+                seedSource: new InsertSeedSource({ Season: [season_record] }),
+            });
 
             season_id = await knexDb("Season")
                 .first()
@@ -63,14 +42,11 @@ describe("GuildSeason table operations", () => {
 
             guild_season_record = guildSeasonRecordFactory({ season_id });
             guild_id = guild_season_record.guild_id;
-            await seed_db(
-                new TestSeedSource([
-                    async (knex: Knex) => {
-                        await knex("GuildSeason").insert(guild_season_record);
-                    },
-                ]),
-                knexDb,
-            );
+            await knexDb.seed.run({
+                seedSource: new InsertSeedSource({
+                    GuildSeason: [guild_season_record],
+                }),
+            });
         });
         test("Nominal", async () => {
             expect(
@@ -85,14 +61,9 @@ describe("GuildSeason table operations", () => {
         let season_id: number;
         beforeEach(async () => {
             season_record = currentSeasonRecordFactory();
-            await seed_db(
-                new TestSeedSource([
-                    async (knex: Knex) => {
-                        await knex("Season").insert(season_record);
-                    },
-                ]),
-                knexDb,
-            );
+            await knexDb.seed.run({
+                seedSource: new InsertSeedSource({ Season: [season_record] }),
+            });
 
             season_id = await knexDb("Season")
                 .first()
@@ -131,15 +102,11 @@ describe("GuildSeason table operations", () => {
         beforeEach(async () => {
             old_season_record = currentSeasonRecordFactory();
             new_season_record = currentSeasonRecordFactory();
-            await seed_db(
-                new TestSeedSource([
-                    async (knex: Knex) => {
-                        await knex("Season").insert(old_season_record);
-                        await knex("Season").insert(new_season_record);
-                    },
-                ]),
-                knexDb,
-            );
+            await knexDb.seed.run({
+                seedSource: new InsertSeedSource({
+                    Season: [old_season_record, new_season_record],
+                }),
+            });
             const old_season_id = await await knexDb("Season")
                 .first()
                 .where(new_season_record)
@@ -152,14 +119,11 @@ describe("GuildSeason table operations", () => {
             guild_season_record = guildSeasonRecordFactory({
                 season_id: old_season_id,
             });
-            await seed_db(
-                new TestSeedSource([
-                    async (knex: Knex) => {
-                        await knex("GuildSeason").insert(guild_season_record);
-                    },
-                ]),
-                knexDb,
-            );
+            await knexDb.seed.run({
+                seedSource: new InsertSeedSource({
+                    GuildSeason: [guild_season_record],
+                }),
+            });
         });
         describe("Updating an existing `GuildSeason` record", () => {
             test("Nominal", async () => {
