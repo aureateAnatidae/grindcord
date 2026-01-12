@@ -9,7 +9,6 @@
         },
         "baseUrl": "src",
         "paths": {
-            "@seeds/*": ["../seeds/*"],
             "@test/*": ["test/*"],
             "@db/*": ["db/*"],
             "@v1/*": ["v1/*"]

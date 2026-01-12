@@ -1,11 +1,11 @@
+import { seed as SSBUCharacters_seed } from "@db/seeds/SSBUCharacters";
 import { getLogger } from "@logtape/logtape";
-import { seed as SSBUCharacters_seed } from "@seeds/SSBUCharacters";
 import type { Knex } from "knex";
 
 const log = getLogger(["grindcord", "db"]);
 
 // Seek more customizable API where list of seeds can be provided to the seedsource
-export class SeedSource {
+export class BaseSeedSource {
     getSeeds() {
         return Promise.resolve(["SSBUCharacters"]);
     }
