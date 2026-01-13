@@ -22,6 +22,7 @@ export const MatchWinnerView = (db: Knex) => ({
 
 export const MatchReportDerivedRow = z.object({
     match_id: z.int(),
+    season_id: z.int(),
     guild_id: z.string(),
     user_id: z.string(),
     win_count: z.int(),
@@ -34,6 +35,7 @@ export const MatchReportView = (db: Knex) => ({
     initialize(view: Knex.ViewBuilder) {
         view.columns([
             "match_id",
+            "season_id",
             "guild_id",
             "user_id",
             "win_count",
@@ -46,6 +48,7 @@ export const MatchReportView = (db: Knex) => ({
                 .leftJoin("MatchCharacter", "Match.match_id", "MatchCharacter.match_id")
                 .select(
                     "Match.match_id as match_id",
+                    "Match.season_id as season_id",
                     "Match.guild_id as guild_id",
                     "MatchPlayer.user_id as user_id",
                     "MatchPlayer.win_count as win_count",

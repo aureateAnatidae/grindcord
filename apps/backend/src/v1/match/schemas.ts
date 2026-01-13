@@ -38,6 +38,7 @@ export const MatchQuery = z
     .object({
         match_id: z.coerce.number(),
         guild_id: z.string(),
+        season_id: z.string(),
         user_id: z.string(),
         character: SSBUCharEnumToFighterNumber,
         before_datetime: z.iso.datetime(),

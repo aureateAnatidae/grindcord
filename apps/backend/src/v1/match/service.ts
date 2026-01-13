@@ -1,4 +1,5 @@
 import { knexDb } from "@db/knexfile";
+import { getGuildSeason } from "@v1/guild/service";
 import type {
     MatchCharacterRecord,
     MatchPlayerRecord,
@@ -41,7 +42,14 @@ export async function createMatch(
     guild_id: string,
     db: Knex = knexDb,
 ): Promise<number> {
-    const match_id = await db<MatchRecord>("Match").insert({ guild_id });
+    const guild_season_record = await getGuildSeason(guild_id, db);
+    if (!guild_season_record) {
+        throw Error("The guild is not registered in a season.");
+    }
+    const match_id = await db<MatchRecord>("Match").insert({
+        guild_id,
+        season_id: guild_season_record.season_id,
+    });
     return match_id[0];
 }
 

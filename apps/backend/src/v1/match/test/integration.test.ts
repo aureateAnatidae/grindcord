@@ -1,6 +1,8 @@
 import { InsertSeedSource } from "@db/CustomSeedSource";
 import { init_tables, init_views } from "@db/init_tables";
 import { knexDb } from "@db/knexfile";
+import type { GuildSeasonRecord } from "@v1/guild/models";
+import { guildSeasonRecordFactory } from "@v1/guild/test/models.factories";
 import type {
     MatchCharacterRecord,
     MatchPlayerRecord,
@@ -21,10 +23,11 @@ import {
 } from "@v1/match/service";
 import { matchReportFactory } from "@v1/match/test/schemas.factories";
 import { MatchReportDerivedRow } from "@v1/match/views";
+import { currentSeasonRecordFactory } from "@v1/season/test/models.factories";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { matchPlayerRecordFactory, matchRecordFactory } from "./models.factories";
 
-// Nominal fake data that is not inserted should be defined here
+// Nominal fake schema data should be defined here
 const nominal_match_report = matchReportFactory({
     guild_id: "123456789",
     players: [
@@ -41,9 +44,33 @@ const nominal_match_report = matchReportFactory({
     ],
 });
 
+// Seed a GuildSeason record for each test
+const guild_id = nominal_match_report.guild_id;
+let season_id: number;
 beforeEach(async () => {
     await init_tables(knexDb);
     await init_views(knexDb);
+
+    const season_record = currentSeasonRecordFactory();
+    await knexDb.seed.run({
+        seedSource: new InsertSeedSource({
+            Season: [season_record],
+        }),
+    });
+    season_id = await knexDb("Season")
+        .first()
+        .where(season_record)
+        .then((res) => res.season_id);
+
+    const guild_season_record = guildSeasonRecordFactory({
+        guild_id,
+        season_id,
+    });
+    await knexDb.seed.run({
+        seedSource: new InsertSeedSource({
+            GuildSeason: [guild_season_record],
+        }),
+    });
 });
 afterEach(async () => {
     await knexDb.destroy();
@@ -54,15 +81,19 @@ describe("Match table operations", () => {
     describe("Use `createMatch`", () => {
         describe("Nominal", () => {
             test("Insert a Match record with `createMatch`", async () => {
-                const match_id = await createMatch(
-                    nominal_match_report.guild_id,
-                    knexDb,
-                );
+                const match_id = await createMatch(guild_id, knexDb);
                 const created_match = await knexDb<MatchRecord>("Match")
                     .first()
                     .where({ match_id });
                 expect(created_match?.guild_id).toEqual(nominal_match_report.guild_id);
-                console.log(created_match);
+                expect(created_match?.season_id).toEqual(season_id);
+            });
+        });
+        describe("Negative", () => {
+            test("A Match record cannot be created when no matching GuildSeason is provided", async () => {
+                await expect(createMatch("seasonoflove", knexDb)).rejects.toThrowError(
+                    "The guild is not registered in a season.",
+                );
             });
         });
     });
@@ -73,7 +104,7 @@ describe("MatchPlayer table operations", () => {
         let match_record: Omit<MatchRecord, "match_id" | "created_at">;
         let match_id: number;
         beforeEach(async () => {
-            match_record = matchRecordFactory({ guild_id: "123456789" });
+            match_record = matchRecordFactory({ guild_id });
             await knexDb.seed.run({
                 seedSource: new InsertSeedSource({ Match: [match_record] }),
             });
@@ -140,7 +171,7 @@ describe("MatchCharacter table operations", () => {
         let match_player_characters_2: Array<SSBUCharFighterNumber>;
         beforeEach(async () => {
             match_record = matchRecordFactory({
-                guild_id: nominal_match_report.guild_id,
+                guild_id,
             });
             await knexDb.seed.run({
                 seedSource: new InsertSeedSource({
@@ -238,10 +269,8 @@ describe("MatchCharacter table operations", () => {
 
 describe("Operations across Match, MatchPlayer, and MatchCharacter tables", () => {
     describe("Use `reportMatch`", async () => {
-        describe("Random", () => {
+        describe("Nominal", () => {
             test("Report a match", async () => {
-                const { guild_id } = nominal_match_report;
-
                 const match_id = await reportMatch(nominal_match_report, knexDb);
 
                 const match_player_records = await knexDb("MatchPlayer")
@@ -280,10 +309,9 @@ describe("Operations across Match, MatchPlayer, and MatchCharacter tables", () =
     });
 
     describe("Use `getMatches`", async () => {
-        describe("Random", () => {
+        describe("Nominal", () => {
             test("Retrieve a derived row from MatchReportView by match_id", async () => {
                 const match_id = await reportMatch(nominal_match_report, knexDb);
-                const { guild_id } = nominal_match_report;
 
                 const match_query: MatchQuery = { match_id };
                 const result = await getMatches(match_query, knexDb);
@@ -298,6 +326,7 @@ describe("Operations across Match, MatchPlayer, and MatchCharacter tables", () =
                         expected.push(
                             MatchReportDerivedRow.parse({
                                 match_id,
+                                season_id,
                                 guild_id,
                                 user_id,
                                 win_count,

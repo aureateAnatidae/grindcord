@@ -3,6 +3,7 @@ import { z } from "zod";
 
 export const MatchRecord = z.object({
     match_id: z.int(),
+    season_id: z.int(),
     guild_id: z.string(),
     created_at: z.iso.datetime(),
 });
@@ -11,9 +12,23 @@ export const MatchTable = {
     table_name: "Match",
     initialize(table: Knex.TableBuilder) {
         table.increments("match_id");
-        table.string("guild_id").index("guild_id_idx");
+        table.integer("season_id").unsigned().index("season_id_idx");
+        table.string("guild_id");
         // https://github.com/knex/knex/issues/6283
         table.timestamp("created_at").defaultTo(new Date().toISOString());
+
+        table
+            .foreign("guild_id")
+            .references("guild_id")
+            .inTable("GuildSeason")
+            .onUpdate("CASCADE")
+            .onDelete("RESTRICT");
+        table
+            .foreign("season_id")
+            .references("season_id")
+            .inTable("Season")
+            .onUpdate("CASCADE")
+            .onDelete("RESTRICT");
     },
 };
 
