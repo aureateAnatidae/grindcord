@@ -1,0 +1,23 @@
+{
+    "$schema": "https://swc.rs/schema.json",
+    "jsc": {
+        "parser": {
+            "syntax": "typescript",
+            "tsx": false,
+            "decorators": false,
+            "dynamicImport": false
+        },
+        "baseUrl": "src",
+        "paths": {
+            "@helper/*": ["helper/*"],
+            "@event/*": ["interaction/event/*"],
+            "@command/*": ["interaction/command/*"],
+            "@component/*": ["interaction/component/*"]
+        }
+    },
+    "module": {
+        "type": "nodenext",
+        "resolveFully": true
+    },
+    "minify": false
+}

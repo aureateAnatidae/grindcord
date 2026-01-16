@@ -1,14 +1,16 @@
-import { Events } from "discord.js";
-import pino from "pino";
+import type { EventHandler } from "@event/types";
+import { getLogger } from "@logtape/logtape";
+import { type Client, Events } from "discord.js";
 
-const log = pino();
+const log = getLogger(["bot"]);
 
-const ClientReady = {
+const ClientReady: EventHandler = {
     name: Events.ClientReady,
     once: true,
-    execute(client) {
-        log.info(`Commence startup on Events.ClientReady -- client ${client.user.tag}`);
-        // TODO: Implement parsing all messages since last message parsed
+    execute(client: Client): void {
+        log.info(
+            `Commence startup on Events.ClientReady -- client ${client.user?.tag}`,
+        );
     },
 };
 

@@ -2,8 +2,7 @@
     "compilerOptions": {
         "lib": ["es2024", "ESNext.Array", "ESNext.Collection", "ESNext.Promise"],
         "module": "NodeNext",
-        "moduleResolution": "NodeNext",
-        "target": "ESNext",
+        "moduleResolution": "bundler",
 
         "rootDir": ".",
         "outDir": "build",
@@ -14,11 +13,10 @@
 
         "baseUrl": "src",
         "paths": {
+            "@helper/*": ["helper/*"],
             "@event/*": ["interaction/event/*"],
-            "@event": ["interaction/event"],
             "@command/*": ["interaction/command/*"],
-            "@command": ["interaction/command"],
-            "@package": ["../package.json"]
+            "@component/*": ["interaction/component/*"]
         }
     }
 }

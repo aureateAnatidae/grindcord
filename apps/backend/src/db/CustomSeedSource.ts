@@ -5,7 +5,7 @@ import type { MatchPlayerRecord, MatchRecord } from "@v1/match/models";
 import type { SeasonRecord } from "@v1/season/models";
 import type { Knex } from "knex";
 
-const log = getLogger(["grindcord", "db"]);
+const log = getLogger(["backend", "db"]);
 
 // Seek more customizable API where list of seeds can be provided to the seedsource
 export class BaseSeedSource {

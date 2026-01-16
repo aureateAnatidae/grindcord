@@ -11,7 +11,7 @@ import { MatchReportView, MatchWinnerView } from "@v1/match/views";
 import { SeasonTable } from "@v1/season/models";
 import type { Knex } from "knex";
 
-const log = getLogger(["grindcord", "db"]);
+const log = getLogger(["backend", "db"]);
 
 const tables = [
     MatchTable,

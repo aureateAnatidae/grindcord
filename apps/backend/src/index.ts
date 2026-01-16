@@ -14,7 +14,7 @@ import { openAPIRouteHandler } from "hono-openapi";
 await configure({
     sinks: { console: getConsoleSink() },
     loggers: [
-        { category: ["grindcord"], sinks: ["console"], lowestLevel: "trace" },
+        { category: ["backend"], sinks: ["console"], lowestLevel: "trace" },
         { category: ["hono"], sinks: ["console"], lowestLevel: "info" },
     ],
 });
