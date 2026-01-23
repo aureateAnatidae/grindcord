@@ -1,21 +1,10 @@
 import {
-    confirmReport,
     initializeReportMatchInterface,
-    selectUsersPage,
 } from "@command/report/component";
 import type { CommandHandler } from "@command/types";
 import { getLogger } from "@logtape/logtape";
 import {
-    Collection,
-    type CommandInteraction,
-    ComponentType,
-    ContainerBuilder,
-    type InteractionCallbackResponse,
-    type Message,
-    type MessageComponentInteraction,
-    MessageFlags,
     SlashCommandBuilder,
-    type User,
 } from "discord.js";
 
 const log = getLogger(["bot"]);
