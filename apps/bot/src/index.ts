@@ -1,4 +1,4 @@
-import reportMatch from "@command/report";
+import reportMatch from "@command/report/handler";
 import type { CommandHandler } from "@command/types";
 import ClientReady from "@event/ClientReady";
 import type { EventHandler } from "@event/types";
