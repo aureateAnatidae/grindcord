@@ -115,7 +115,6 @@ async function inputWinCountPage(
     const component = new ContainerBuilder().addTextDisplayComponents((title) =>
         title.setContent("# Report a Set"),
     );
-    // console.log(match_players)
     for (const [user_id, match_player] of match_players) {
         console.log(user_id);
         component.addTextDisplayComponents((title) =>
@@ -129,15 +128,36 @@ async function inputWinCountPage(
                     )
                     .setCustomId(user_id)
                     .setOptions(
-                        [1, 2, 3, 4, 5, 6, 7].map((x) =>
-                            new StringSelectMenuOptionBuilder()
+                        [1, 2, 3, 4, 5, 6, 7].map((x) => {
+                            const wins = new StringSelectMenuOptionBuilder()
                                 .setLabel(x.toString())
-                                .setValue(x.toString()),
-                        ),
+                                .setValue(x.toString());
+                            if (match_players.get(user_id)?.win_count === x) {
+                                wins.setDefault(true);
+                            }
+                            return wins;
+                        }),
                     ),
             ),
         );
     }
+    component
+        .addActionRowComponents((actionRow) =>
+            actionRow.setComponents(
+                new ButtonBuilder()
+                    .setCustomId("previous")
+                    .setLabel("Previous")
+                    .setStyle(ButtonStyle.Primary),
+            ),
+        )
+        .addActionRowComponents((actionRow) =>
+            actionRow.setComponents(
+                new ButtonBuilder()
+                    .setCustomId("next")
+                    .setLabel("Next")
+                    .setStyle(ButtonStyle.Primary),
+            ),
+        );
     async function collect(interactable_message: Message<true>): Promise<void> {
         const winCountCollector = interactable_message.createMessageComponentCollector({
             componentType: ComponentType.StringSelect,
@@ -148,17 +168,22 @@ async function inputWinCountPage(
             time: 60_000,
         });
 
-        winCountCollector?.on("collect", (i) => {
-            console.log(i);
-            i.deferUpdate();
+        winCountCollector?.on("collect", async (i) => {
+            const player = match_players.get(i.customId);
+            if (player) {
+                player.win_count = Number(i.values[0]);
+            }
+            await i.deferUpdate();
         });
-        pagingCollector?.on("collect", (i) => {
-            log.trace(`winCount interface received: ${JSON.stringify(i)}`);
-
+        pagingCollector?.on("collect", async (i) => {
             winCountCollector.stop();
             pagingCollector.stop();
 
-            inputWinCountPage(i, match_players);
+            if (i.customId === "next") {
+                inputWinCountPage(i, match_players);
+            } else if (i.customId === "previous") {
+                selectUsersPage(i, match_players);
+            }
         });
     }
     const match_report_interactable = (await interaction.reply({

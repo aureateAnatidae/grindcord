@@ -16,6 +16,7 @@ const reportMatch: CommandHandler = {
 
     async execute(interaction): Promise<void> {
         if (!interaction.inGuild) return;
+        log.debug("/report was invoked")
 
         await initializeReportMatchInterface(interaction);
     },
