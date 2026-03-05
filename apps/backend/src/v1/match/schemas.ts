@@ -1,13 +1,13 @@
-import { ssbu_character_names } from "@src/characters";
+import { ssbu_characters } from "@src/characters";
 import { z } from "zod";
 
-export const SSBUCharEnum = z.enum(ssbu_character_names);
+export const SSBUCharEnum = z.enum(ssbu_characters);
 export type SSBUCharEnum = z.infer<typeof SSBUCharEnum>;
 
 export const SSBUCharFighterNumber = z
     .int()
     .min(0)
-    .max(ssbu_character_names.length + 1);
+    .max(ssbu_characters.length + 1);
 export type SSBUCharFighterNumber = z.infer<typeof SSBUCharFighterNumber>;
 
 export const SSBUCharEnumToFighterNumber = z.codec(
@@ -15,9 +15,9 @@ export const SSBUCharEnumToFighterNumber = z.codec(
     SSBUCharFighterNumber,
     {
         encode: (fighter_number: SSBUCharFighterNumber) =>
-            ssbu_character_names[fighter_number - 1],
+            ssbu_characters[fighter_number - 1],
         decode: (character_name: SSBUCharEnum) =>
-            ssbu_character_names.indexOf(character_name) + 1,
+            ssbu_characters.indexOf(character_name) + 1,
     },
 );
 

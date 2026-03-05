@@ -1,4 +1,4 @@
-export const ssbu_character_names = [
+export const ssbu_characters = [
     "Mario",
     "Donkey Kong",
     "Link",

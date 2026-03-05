@@ -1,4 +1,4 @@
-import { ssbu_character_names } from "@grindcord/characters";
+import { ssbu_characters } from "@grindcord/characters";
 import type { SSBUCharEnum } from "@grindcord/types";
 import { getLogger } from "@logtape/logtape";
 import {
@@ -25,7 +25,7 @@ const log = getLogger(["bot", "component"]);
 type ReportMatchPlayer = {
     name: string;
     win_count?: number;
-    character?: SSBUCharEnum[];
+    character: SSBUCharEnum[];
 };
 
 export async function initializeReportMatchInterface(interaction: CommandInteraction) {
@@ -74,6 +74,7 @@ async function selectUsersPage(
             for (const [user_id, user] of i.users) {
                 selected_users.set(user_id, {
                     name: i.members.get(user_id)?.nickname ?? user.displayName,
+                    character: [],
                 });
             }
             await i.deferUpdate();
@@ -130,7 +131,7 @@ async function selectWinCountPage(
                     .setPlaceholder(`How many sets did ${match_player.name} win?`)
                     .setCustomId(user_id)
                     .setOptions(
-                        [1, 2, 3, 4, 5, 6, 7].map((x) => {
+                        [0, 1, 2, 3, 4, 5, 6, 7].map((x) => {
                             const wins_choice = new StringSelectMenuOptionBuilder()
                                 .setLabel(x.toString())
                                 .setValue(x.toString());
@@ -202,6 +203,8 @@ async function selectCharactersPage(
     interaction: MessageComponentInteraction,
     match_players: Collection<string, ReportMatchPlayer>,
 ) {
+    const characterPagination = new Collection<string, number>();
+
     const component = new ContainerBuilder().addTextDisplayComponents((title) =>
         title.setContent("# Report a Set"),
     );
@@ -216,31 +219,23 @@ async function selectCharactersPage(
                     .setPlaceholder(`Which characters did ${match_player.name} use?`)
                     .setCustomId(user_id)
                     .setOptions(
-                        ssbu_character_names.map((x) => {
+                        ssbu_characters.map((x: SSBUCharEnum) => {
                             const character_choice = new StringSelectMenuOptionBuilder()
                                 .setLabel(x)
                                 .setValue(x);
-                            if (match_player.character && x in match_player.character) {
+                            if (x in match_player.character) {
                                 character_choice.setDefault(true);
                             }
                             return character_choice;
                         }),
                     ),
+                new ButtonBuilder()
+                    .setCustomId(`more${user_id}`)
+                    .setLabel("More characters")
+                    .setStyle(ButtonStyle.Secondary),
             ),
         );
     }
-    component.addActionRowComponents((actionRow) =>
-        actionRow.setComponents(
-            new ButtonBuilder()
-                .setCustomId("previous")
-                .setLabel("Previous")
-                .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-                .setCustomId("next")
-                .setLabel("Next")
-                .setStyle(ButtonStyle.Primary),
-        ),
-    );
     async function collect(interactable_message: Message<true>): Promise<void> {
         const selectCharactersCollector =
             interactable_message.createMessageComponentCollector({
@@ -255,9 +250,7 @@ async function selectCharactersPage(
         selectCharactersCollector?.on("collect", async (i) => {
             const player = match_players.get(i.customId);
             if (player) {
-                player.character = z
-                    .array(z.enum(ssbu_character_names))
-                    .parse(i.values);
+                player.character = z.array(z.enum(ssbu_characters)).parse(i.values);
             }
             await i.deferUpdate();
         });
@@ -265,7 +258,16 @@ async function selectCharactersPage(
             selectCharactersCollector.stop();
             pagingCollector.stop();
 
-            if (i.customId === "next") {
+            if (i.customId.slice(0, 4) === "more") {
+                const user_id = i.customId.slice(4);
+                const pagination_index = characterPagination.get(user_id);
+                const match_player = match_players.get(user_id);
+                if (pagination_index && match_player) {
+                    const new_pagination_index =
+                        25 - (match_player.character?.length % ssbu_characters.length);
+                    characterPagination.set(user_id, new_pagination_index);
+                }
+            } else if (i.customId === "next") {
                 selectWinCountPage(i, match_players);
             } else if (i.customId === "previous") {
                 selectUsersPage(i, match_players);

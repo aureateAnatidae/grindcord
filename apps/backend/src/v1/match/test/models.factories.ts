@@ -1,4 +1,4 @@
-import { ssbu_character_names } from "@src/characters";
+import { ssbu_characters } from "@src/characters";
 import { randint, snowflake } from "@test/factories";
 import type {
     MatchCharacterRecord,
@@ -33,7 +33,7 @@ export const matchCharacterRecordFactory = (
     return {
         match_id: randint(1000),
         user_id: snowflake(),
-        fighter_number: randint(ssbu_character_names.length),
+        fighter_number: randint(ssbu_characters.length),
         ...match_character_record,
     };
 };
