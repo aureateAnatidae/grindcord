@@ -26,6 +26,7 @@ import { MatchReportDerivedRow } from "@v1/match/views";
 import { currentSeasonRecordFactory } from "@v1/season/test/models.factories";
 import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { matchPlayerRecordFactory, matchRecordFactory } from "./models.factories";
+import type { SeasonRecord } from "@v1/season/models";
 
 // Nominal fake schema data should be defined here
 const nominal_match_report = matchReportFactory({
@@ -104,7 +105,7 @@ describe("MatchPlayer table operations", () => {
         let match_record: Omit<MatchRecord, "match_id" | "created_at">;
         let match_id: number;
         beforeEach(async () => {
-            match_record = matchRecordFactory({ guild_id });
+            match_record = matchRecordFactory({ guild_id, season_id });
             await knexDb.seed.run({
                 seedSource: new InsertSeedSource({ Match: [match_record] }),
             });
@@ -172,6 +173,7 @@ describe("MatchCharacter table operations", () => {
         beforeEach(async () => {
             match_record = matchRecordFactory({
                 guild_id,
+                season_id
             });
             await knexDb.seed.run({
                 seedSource: new InsertSeedSource({

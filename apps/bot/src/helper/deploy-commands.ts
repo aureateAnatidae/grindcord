@@ -1,4 +1,4 @@
-import type { CommandHandler } from "@command/types";
+import type { CommandHandler } from "@command/CommandHandler";
 import { getLogger } from "@logtape/logtape";
 import config from "config";
 import type { RESTPutAPIApplicationCommandsResult } from "discord.js";

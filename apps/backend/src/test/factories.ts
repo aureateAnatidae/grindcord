@@ -1,7 +1,7 @@
 // General utilities for generating test data
 
-import { ssbu_character_names } from "@db/seeds/SSBUCharacters";
 import { faker } from "@faker-js/faker";
+import { ssbu_character_names } from "@src/characters";
 
 export const snowflake = () =>
     faker.string.numeric({

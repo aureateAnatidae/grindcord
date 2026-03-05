@@ -1,0 +1,24 @@
+{
+    "name": "@grindcord/characters",
+    "version": "1.0.0",
+    "description": "Constant array of all characters in Super Smash Bros. Ultimate",
+
+    "type": "module",
+    "types": "./dist/index.d.ts",
+    
+    "files": ["dist"],
+    
+    "scripts": {
+        "build": "swc src -d dist --strip-leading-paths"
+    },
+
+    "author": "aureateAnatidae",
+    "license": "MIT",
+    "packageManager": "pnpm@10.28.0",
+    "dependencies": {
+        "@grindcord/backend": "workspace:^"
+    },
+    "exports": {
+        ".": "./dist/index.js"
+    }
+}

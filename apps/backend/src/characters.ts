@@ -1,4 +1,4 @@
-export const ssbu_character_choices = [
+export const ssbu_character_names = [
     "Mario",
     "Donkey Kong",
     "Link",
@@ -85,6 +85,4 @@ export const ssbu_character_choices = [
     "Pyra/Mythra",
     "Kazuya",
     "Sora",
-].map((character: string) => {
-    return { name: character, value: character };
-});
+] as const;

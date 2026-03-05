@@ -1,4 +1,3 @@
-import { BaseSeedSource as SSBUCharacterSeedSource } from "@db/CustomSeedSource";
 import { init_tables, init_views } from "@db/init_tables";
 import { knexDb } from "@db/knexfile";
 import { serve } from "@hono/node-server";

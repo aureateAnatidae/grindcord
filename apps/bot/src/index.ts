@@ -1,5 +1,5 @@
 import reportMatch from "@command/report/handler";
-import type { CommandHandler } from "@command/types";
+import type { CommandHandler } from "@command/CommandHandler";
 import ClientReady from "@event/ClientReady";
 import type { EventHandler } from "@event/types";
 import { deploy_commands } from "@helper/deploy-commands";

@@ -1,4 +1,5 @@
-import type { ssbu_character_choices } from "@helper/SSBUCharacters";
+import { ssbu_character_names } from "@grindcord/characters";
+import type { SSBUCharEnum } from "@grindcord/types";
 import { getLogger } from "@logtape/logtape";
 import {
     ButtonBuilder,
@@ -17,23 +18,23 @@ import {
     type User,
     UserSelectMenuBuilder,
 } from "discord.js";
+import { z } from "zod";
 
 const log = getLogger(["bot", "component"]);
 
-// TODO: export a types package from backend, share the type
-type MatchPlayer = {
-    user: User;
-    win_count?: number | null;
-    character?: Array<keyof typeof ssbu_character_choices> | null;
+type ReportMatchPlayer = {
+    name: string;
+    win_count?: number;
+    character?: SSBUCharEnum[];
 };
 
 export async function initializeReportMatchInterface(interaction: CommandInteraction) {
-    await selectUsersPage(interaction, new Collection<string, MatchPlayer>());
+    await selectUsersPage(interaction, new Collection<string, ReportMatchPlayer>());
 }
 
 async function selectUsersPage(
     interaction: MessageComponentInteraction | CommandInteraction,
-    match_players: Collection<string, MatchPlayer>,
+    match_players: Collection<string, ReportMatchPlayer>,
 ) {
     const component = new ContainerBuilder()
         .addTextDisplayComponents((title) => title.setContent("# Report a Set"))
@@ -56,7 +57,7 @@ async function selectUsersPage(
             ),
         );
     async function collect(message: Message<true>): Promise<void> {
-        const selected_users = new Collection<string, MatchPlayer>(match_players);
+        const selected_users = new Collection<string, ReportMatchPlayer>(match_players);
 
         const userSelectCollector = message.createMessageComponentCollector({
             componentType: ComponentType.UserSelect,
@@ -69,8 +70,11 @@ async function selectUsersPage(
 
         userSelectCollector?.on("collect", async (i) => {
             selected_users.clear();
+            console.log(i.members);
             for (const [user_id, user] of i.users) {
-                selected_users.set(user_id, { user });
+                selected_users.set(user_id, {
+                    name: i.members.get(user_id)?.nickname ?? user.displayName,
+                });
             }
             await i.deferUpdate();
         });
@@ -91,7 +95,7 @@ async function selectUsersPage(
             userSelectCollector.stop();
             pagingCollector.stop();
 
-            inputWinCountPage(i, match_players);
+            selectWinCountPage(i, match_players);
         });
     }
     const match_report_interactable = (await interaction.reply({
@@ -108,9 +112,9 @@ async function selectUsersPage(
     collect(message);
 }
 
-async function inputWinCountPage(
+async function selectWinCountPage(
     interaction: MessageComponentInteraction,
-    match_players: Collection<string, MatchPlayer>,
+    match_players: Collection<string, ReportMatchPlayer>,
 ) {
     const component = new ContainerBuilder().addTextDisplayComponents((title) =>
         title.setContent("# Report a Set"),
@@ -123,41 +127,34 @@ async function inputWinCountPage(
         component.addActionRowComponents((actionRow) =>
             actionRow.addComponents(
                 new StringSelectMenuBuilder()
-                    .setPlaceholder(
-                        `How many sets did ${match_player.user.username} win?`,
-                    )
+                    .setPlaceholder(`How many sets did ${match_player.name} win?`)
                     .setCustomId(user_id)
                     .setOptions(
                         [1, 2, 3, 4, 5, 6, 7].map((x) => {
-                            const wins = new StringSelectMenuOptionBuilder()
+                            const wins_choice = new StringSelectMenuOptionBuilder()
                                 .setLabel(x.toString())
                                 .setValue(x.toString());
-                            if (match_players.get(user_id)?.win_count === x) {
-                                wins.setDefault(true);
+                            if (match_player.win_count === x) {
+                                wins_choice.setDefault(true);
                             }
-                            return wins;
+                            return wins_choice;
                         }),
                     ),
             ),
         );
     }
-    component
-        .addActionRowComponents((actionRow) =>
-            actionRow.setComponents(
-                new ButtonBuilder()
-                    .setCustomId("previous")
-                    .setLabel("Previous")
-                    .setStyle(ButtonStyle.Primary),
-            ),
-        )
-        .addActionRowComponents((actionRow) =>
-            actionRow.setComponents(
-                new ButtonBuilder()
-                    .setCustomId("next")
-                    .setLabel("Next")
-                    .setStyle(ButtonStyle.Primary),
-            ),
-        );
+    component.addActionRowComponents((actionRow) =>
+        actionRow.setComponents(
+            new ButtonBuilder()
+                .setCustomId("previous")
+                .setLabel("Previous")
+                .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
+                .setCustomId("next")
+                .setLabel("Next")
+                .setStyle(ButtonStyle.Primary),
+        ),
+    );
     async function collect(interactable_message: Message<true>): Promise<void> {
         const winCountCollector = interactable_message.createMessageComponentCollector({
             componentType: ComponentType.StringSelect,
@@ -180,7 +177,7 @@ async function inputWinCountPage(
             pagingCollector.stop();
 
             if (i.customId === "next") {
-                inputWinCountPage(i, match_players);
+                selectCharactersPage(i, match_players);
             } else if (i.customId === "previous") {
                 selectUsersPage(i, match_players);
             }
@@ -200,6 +197,96 @@ async function inputWinCountPage(
     }
     collect(message);
 }
+
+async function selectCharactersPage(
+    interaction: MessageComponentInteraction,
+    match_players: Collection<string, ReportMatchPlayer>,
+) {
+    const component = new ContainerBuilder().addTextDisplayComponents((title) =>
+        title.setContent("# Report a Set"),
+    );
+    for (const [user_id, match_player] of match_players) {
+        console.log(user_id);
+        component.addTextDisplayComponents((title) =>
+            title.setContent(`<@${user_id}>`),
+        );
+        component.addActionRowComponents((actionRow) =>
+            actionRow.addComponents(
+                new StringSelectMenuBuilder()
+                    .setPlaceholder(`Which characters did ${match_player.name} use?`)
+                    .setCustomId(user_id)
+                    .setOptions(
+                        ssbu_character_names.map((x) => {
+                            const character_choice = new StringSelectMenuOptionBuilder()
+                                .setLabel(x)
+                                .setValue(x);
+                            if (match_player.character && x in match_player.character) {
+                                character_choice.setDefault(true);
+                            }
+                            return character_choice;
+                        }),
+                    ),
+            ),
+        );
+    }
+    component.addActionRowComponents((actionRow) =>
+        actionRow.setComponents(
+            new ButtonBuilder()
+                .setCustomId("previous")
+                .setLabel("Previous")
+                .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
+                .setCustomId("next")
+                .setLabel("Next")
+                .setStyle(ButtonStyle.Primary),
+        ),
+    );
+    async function collect(interactable_message: Message<true>): Promise<void> {
+        const selectCharactersCollector =
+            interactable_message.createMessageComponentCollector({
+                componentType: ComponentType.StringSelect,
+                time: 60_000,
+            });
+        const pagingCollector = interactable_message.createMessageComponentCollector({
+            componentType: ComponentType.Button,
+            time: 60_000,
+        });
+
+        selectCharactersCollector?.on("collect", async (i) => {
+            const player = match_players.get(i.customId);
+            if (player) {
+                player.character = z
+                    .array(z.enum(ssbu_character_names))
+                    .parse(i.values);
+            }
+            await i.deferUpdate();
+        });
+        pagingCollector?.on("collect", async (i) => {
+            selectCharactersCollector.stop();
+            pagingCollector.stop();
+
+            if (i.customId === "next") {
+                selectWinCountPage(i, match_players);
+            } else if (i.customId === "previous") {
+                selectUsersPage(i, match_players);
+            }
+        });
+    }
+    const match_report_interactable = (await interaction.reply({
+        components: [component],
+        flags: MessageFlags.IsComponentsV2,
+        withResponse: true,
+        allowedMentions: {},
+    })) as InteractionCallbackResponse<true>;
+
+    const message: Message<true> | undefined | null =
+        match_report_interactable.resource?.message;
+    if (!message) {
+        throw new Error("Somehow, no message was attached to the reply");
+    }
+    collect(message);
+}
+
 export const confirmReport = new ContainerBuilder().addTextDisplayComponents((title) =>
     title.setContent("## Please confirm the data to report"),
 );

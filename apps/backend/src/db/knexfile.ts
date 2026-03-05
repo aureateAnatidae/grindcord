@@ -1,5 +1,5 @@
 import { BaseSeedSource } from "@db/CustomSeedSource";
-import config from "config";
+import config from "@src/config";
 import knex, { type Knex } from "knex";
 
 // TODO: https://knexjs.org/guide/#log

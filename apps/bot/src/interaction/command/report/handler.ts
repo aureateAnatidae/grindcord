@@ -1,7 +1,7 @@
 import {
     initializeReportMatchInterface,
 } from "@command/report/component";
-import type { CommandHandler } from "@command/types";
+import type { CommandHandler } from "@command/CommandHandler";
 import { getLogger } from "@logtape/logtape";
 import {
     SlashCommandBuilder,

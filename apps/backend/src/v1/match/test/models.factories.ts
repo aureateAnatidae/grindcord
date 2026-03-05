@@ -1,4 +1,4 @@
-import { ssbu_character_names } from "@db/seeds/SSBUCharacters";
+import { ssbu_character_names } from "@src/characters";
 import { randint, snowflake } from "@test/factories";
 import type {
     MatchCharacterRecord,
@@ -11,6 +11,7 @@ export const matchRecordFactory = (
 ): Omit<MatchRecord, "match_id" | "created_at"> => {
     return {
         guild_id: snowflake(),
+        season_id: randint(1000),
         ...match_record,
     };
 };

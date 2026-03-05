@@ -1,0 +1,24 @@
+{
+    "name": "@grindcord/types",
+    "version": "1.0.0",
+    "description": "Type definitions for Grindcord",
+
+    "type": "module",
+    "types": "./dist/index.d.ts",
+    
+    "files": ["dist"],
+    
+    "scripts": {
+        "build": "tsc --emitDeclarationOnly"
+    },
+
+    "author": "aureateAnatidae",
+    "license": "MIT",
+    "packageManager": "pnpm@10.28.0",
+    "dependencies": {
+        "@grindcord/backend": "workspace:^"
+    },
+    "exports": {
+        ".": "./dist/index.d.ts"
+    }
+}
